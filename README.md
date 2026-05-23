@@ -1,5 +1,7 @@
 # IS-Econometrics Skills
 
+![Banner](OpenClaw_README_banner.png)
+
 **面向管理信息系统（IS）专业师生的因果推断与计量分析 OpenClaw 技能矩阵**
 
 [![OpenClaw Skill](https://img.shields.io/badge/OpenClaw-Skill-blue.svg)](https://docs.openclaw.ai)
@@ -187,29 +189,36 @@ python skills/stargazer-exporter/scripts/generate_table.py \
 
 ```
 is-econometrics-skills/
+├── README.md
+├── OpenClaw_README_banner.png     # README 顶部背景图
+├── OpenClaw_repo_icon_card.png    # 仓库图标卡片
 ├── skills/
 │   ├── is-econometrics/        # 主控技能（协调层）
-│   │   ├── SKILL.md
-│   │   ├── scripts/
-│   │   │   └── example.py
-│   │   └── references/
-│   │       └── api_reference.md
+│   │   └── SKILL.md
 │   ├── panel-regression/       # 双向固定效应回归
 │   │   ├── SKILL.md
-│   │   └── scripts/
-│   │       └── panel_regression.py
+│   │   ├── scripts/
+│   │   │   └── panel_regression.py
+│   │   └── references/
+│   │       └── panel-regression-guide.md
 │   ├── iv-estimator/           # 工具变量回归
 │   │   ├── SKILL.md
-│   │   └── scripts/
-│   │       └── iv_regression.py
+│   │   ├── scripts/
+│   │   │   └── iv_regression.py
+│   │   └── references/
+│   │       └── iv-diagnostics.md
 │   ├── staggered-did/          # 多时点 DID
 │   │   ├── SKILL.md
-│   │   └── scripts/
-│   │       └── staggered_did_pipeline.py
+│   │   ├── scripts/
+│   │   │   └── staggered_did_pipeline.py
+│   │   └── references/
+│   │       └── staggered-did-guide.md
 │   └── stargazer-exporter/     # 表格导出
 │       ├── SKILL.md
-│       └── scripts/
-│           └── generate_table.py
+│       ├── scripts/
+│       │   └── generate_table.py
+│       └── references/
+│           └── default_rename_map.md
 └── dist/                       # 打包的 .skill 文件
     ├── is-econometrics.skill
     ├── panel-regression.skill
