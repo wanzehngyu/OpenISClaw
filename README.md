@@ -5,7 +5,9 @@
 **面向管理信息系统（IS）专业师生的因果推断与计量分析 OpenClaw 技能矩阵**
 
 [![OpenClaw Skill](https://img.shields.io/badge/OpenClaw-Skill-blue.svg)](https://docs.openclaw.ai)
+[![Skills Count](https://img.shields.io/badge/Skills-13-brightgreen?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZmlsbD0id2hpdGUiIGQ9Ik0xMiAyQzYuNDggMiAyIDYuNDggMiAxMnM0LjQ4IDEwIDEwIDEwIDEwLTQuNDggMTAtMTBTMTcuNTIgMiAxMiAyem0tMiAxNWwtNS01IDEuNDEtMS40MUwxMCAxNC4xN2w3LjU5LTcuNTlMMTkgOGwtOSA5eiIvPjwvc3ZnPg==)](https://github.com/wanzehngyu/OpenISClaw)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Platform](https://img.shields.io/badge/Platform-OpenClaw-orange?style=for-the-badge)](https://github.com/openclaw/openclaw)
 
 ## 🎯 目标
 
@@ -35,6 +37,14 @@ stargazer-exporter ──→ LaTeX/HTML/Word 发表级表格
 | **[iv-estimator](skills/iv-estimator/)** | 2SLS 工具变量回归与内生性诊断 | "工具变量"、"2SLS"、"IV"、"Hausman"、"Sargan" |
 | **[staggered-did](skills/staggered-did/)** | 多时点 DID（Callaway-Sant'Anna 估计量） | "多时点DID"、"Staggered DID"、"事件研究"、"平行趋势" |
 | **[stargazer-exporter](skills/stargazer-exporter/)** | 学术表格格式化输出 | "输出表格"、"LaTeX"、"三线表"、"发表级" |
+| **[economic-database](skills/economic-database/)** | 世界银行/FRED/CSMAR 宏观数据获取 | "下载宏观数据"、"GDP"、"CPI"、"FRED" |
+| **[data-cleaning](skills/data-cleaning/)** | 面板数据系统性清洗与预处理 | "清洗数据"、"缺失值"、"异常值"、"数据质量" |
+| **[variable-construction](skills/variable-construction/)** | 变量构建、滞后项、增长率、行业调整 | "构建变量"、"生成新变量"、"行业均值"、"去中心化" |
+| **[regression-plotter](skills/regression-plotter/)** | 学术级回归系数森林图生成 | "回归系数图"、"森林图"、"系数可视化" |
+| **[regression-diagnostics-report](skills/regression-diagnostics-report/)** | 汇总诊断结果，生成完整 Markdown 报告 | "生成诊断报告"、"回归报告" |
+| **[difference-in-discontinuities](skills/difference-in-discontinuities/)** | 断点回归（RDD）因果效应分析 | "断点回归"、"RDD"、"模糊断点"、"阈值效应" |
+| **[propensity-score-matching](skills/propensity-score-matching/)** | 倾向得分匹配（PSM）反事实估计 | "PSM"、"倾向得分匹配"、"匹配估计" |
+| **[survival-analysis](skills/survival-analysis/)** | Cox 比例风险模型与生存分析 | "生存分析"、"Cox模型"、"Kaplan-Meier" |
 
 ## 🔧 安装依赖
 
@@ -190,7 +200,8 @@ python skills/stargazer-exporter/scripts/generate_table.py \
 ```
 is-econometrics-skills/
 ├── README.md
-├── OpenClaw_README_banner.png     # README 顶部背景图
+├── LICENSE
+├── OpenClaw_README_banner.png     # README 顶部 Banner 图
 ├── OpenClaw_repo_icon_card.png    # 仓库图标卡片
 ├── skills/
 │   ├── is-econometrics/        # 主控技能（协调层）
@@ -213,12 +224,60 @@ is-econometrics-skills/
 │   │   │   └── staggered_did_pipeline.py
 │   │   └── references/
 │   │       └── staggered-did-guide.md
-│   └── stargazer-exporter/     # 表格导出
+│   ├── stargazer-exporter/     # 表格导出
+│   │   ├── SKILL.md
+│   │   ├── scripts/
+│   │   │   └── generate_table.py
+│   │   └── references/
+│   │       └── default_rename_map.md
+│   ├── economic-database/     # 宏观经济数据库连接
+│   │   ├── SKILL.md
+│   │   ├── scripts/
+│   │   │   └── fetch_macro_data.py
+│   │   └── references/
+│   │       ├── worldbank-indicator-codes.md
+│   │       └── fred-common-series.md
+│   ├── data-cleaning/          # 数据清洗与预处理
+│   │   ├── SKILL.md
+│   │   ├── scripts/
+│   │   │   └── data_cleaning.py
+│   │   └── references/
+│   │       └── data-quality-standards.md
+│   ├── variable-construction/ # 变量构建与衍生计算
+│   │   ├── SKILL.md
+│   │   ├── scripts/
+│   │   │   └── build_variables.py
+│   │   └── references/
+│   │       └── variable-construction-guide.md
+│   ├── regression-plotter/    # 学术级系数可视化
+│   │   ├── SKILL.md
+│   │   ├── scripts/
+│   │   │   └── plot_regression.py
+│   │   └── references/
+│   ├── regression-diagnostics-report/ # 诊断报告生成
+│   │   ├── SKILL.md
+│   │   ├── scripts/
+│   │   │   └── generate_diagnostics_report.py
+│   │   └── references/
+│   │       └── report-template.md
+│   ├── difference-in-discontinuities/ # 断点回归
+│   │   ├── SKILL.md
+│   │   ├── scripts/
+│   │   │   └── rdd_analysis.py
+│   │   └── references/
+│   │       └── rdd-guide.md
+│   ├── propensity-score-matching/ # 倾向得分匹配
+│   │   ├── SKILL.md
+│   │   ├── scripts/
+│   │   │   └── psm_analysis.py
+│   │   └── references/
+│   │       └── psm-guide.md
+│   └── survival-analysis/      # 生存分析
 │       ├── SKILL.md
 │       ├── scripts/
-│       │   └── generate_table.py
+│       │   └── survival_analysis.py
 │       └── references/
-│           └── default_rename_map.md
+│           └── survival-analysis-guide.md
 └── dist/                       # 打包的 .skill 文件
     ├── is-econometrics.skill
     ├── panel-regression.skill
