@@ -5,7 +5,7 @@
 **面向管理信息系统（IS）专业师生的因果推断与计量分析 OpenClaw 技能矩阵**
 
 [![OpenClaw Skill](https://img.shields.io/badge/OpenClaw-Skill-blue.svg)](https://docs.openclaw.ai)
-[![Skills Count](https://img.shields.io/badge/Skills-14-brightgreen?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZmlsbD0id2hpdGUiIGQ9Ik0xMiAyQzYuNDggMiAyIDYuNDggMiAxMnM0LjQ4IDEwIDEwIDEwIDEwLTQuNDggMTAtMTBTMTcuNTIgMiAxMiAyem0tMiAxNWwtNS01IDEuNDEtMS40MUwxMCAxNC4xN2w3LjU5LTcuNTlMMTkgOGwtOSA5eiIvPjwvc3ZnPg==)](https://github.com/wanzehngyu/OpenISClaw)
+[![Skills Count](https://img.shields.io/badge/Skills-15-brightgreen?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZmlsbD0id2hpdGUiIGQ9Ik0xMiAyQzYuNDggMiAyIDYuNDggMiAxMnM0LjQ4IDEwIDEwIDEwIDEwLTQuNDggMTAtMTBTMTcuNTIgMiAxMiAyem0tMiAxNWwtNS01IDEuNDEtMS40MUwxMCAxNC4xN2w3LjU5LTcuNTlMMTkgOGwtOSA5eiIvPjwvc3ZnPg==)](https://github.com/wanzehngyu/OpenISClaw)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Platform](https://img.shields.io/badge/Platform-OpenClaw-orange?style=for-the-badge)](https://github.com/openclaw/openclaw)
 
@@ -46,6 +46,7 @@ stargazer-exporter ──→ LaTeX/HTML/Word 发表级表格
 | **[difference-in-discontinuities](skills/difference-in-discontinuities/)** | 断点回归（RDD）因果效应分析 | "断点回归"、"RDD"、"模糊断点"、"阈值效应" |
 | **[propensity-score-matching](skills/propensity-score-matching/)** | 倾向得分匹配（PSM）反事实估计 | "PSM"、"倾向得分匹配"、"匹配估计" |
 | **[survival-analysis](skills/survival-analysis/)** | Cox 比例风险模型与生存分析 | "生存分析"、"Cox模型"、"Kaplan-Meier" |
+| **[paper-writer](skills/paper-writer/)** | 实证论文写作：将实证结果整合为完整学术论文 | "写论文"、"生成论文"、"学术论文"、"发表级论文" |
 
 ## 🔧 安装依赖
 
@@ -205,6 +206,36 @@ python skills/stargazer-exporter/scripts/generate_table.py \
 - HTML（网络附件）
 - Word（论文章节）
 
+### Paper Writer（实证论文写作）
+
+```bash
+# 步骤一：检索文献综述
+python skills/paper-writer/scripts/literature_fetcher.py \
+  --query "数字化转型对企业绩效的影响" \
+  --topic "digital transformation firm performance" \
+  --top_k 10 \
+  --output "./output/literature_review.md"
+
+# 步骤二：生成论文（整合所有素材）
+python skills/paper-writer/scripts/paper_writer.py \
+  --research_question "数字化转型对企业绩效的影响" \
+  --data_description "A股上市公司2010-2023年面板数据" \
+  --variables "roa,digital_transformation,firm_size,leverage,age" \
+  --theory "dynamic_capabilities" \
+  --hypotheses "H1:数字化转型对企业绩效有显著正向影响;H2:组织冗余正向调节上述关系" \
+  --method "panel-regression" \
+  --pickle_results "./output/panel_results.pkl" \
+  --literature "./output/literature_review.md" \
+  --output "./output/paper.md"
+```
+
+
+输出：
+- 完整六章学术论文（引言/理论基础/研究假设/方法论/实证结果/讨论）
+- 文献综述基于 Tavily 检索的真实 IS 顶刊文献
+- 讨论部分含理论贡献、实践贡献、局限与未来方向
+- 引用 stargazer-exporter 输出的发表级表格
+
 ## 📁 项目结构
 
 ```
@@ -296,6 +327,15 @@ is-econometrics-skills/
 │       │   └── survival_analysis.py
 │       └── references/
 │           └── survival-analysis-guide.md
+│   └── paper-writer/            # 实证论文写作
+│       ├── SKILL.md
+│       ├── scripts/
+│       │   ├── outline_generator.py       # 论文大纲生成
+│       │   ├── literature_fetcher.py       # 文献检索（Tavily）
+│       │   └── paper_writer.py             # 完整论文生成
+│       └── references/
+│           ├── paper-structure-template.md # 论文结构模板
+│           └── is-journal-standards.md      # IS 期刊格式规范
 └── dist/                       # 打包的 .skill 文件
     ├── is-econometrics.skill
     ├── panel-regression.skill
