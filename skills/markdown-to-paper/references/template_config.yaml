@@ -1,0 +1,109 @@
+# 格式配置文件（YAML）
+# 用于 converter.py 的 --format_config 参数
+# 覆盖 markdown-to-paper 技能的默认 Word/LaTeX 格式设置
+
+# ── Word 格式设置 ──────────────────────────────────────────────────────────
+word:
+  page:
+    size: "A4"            # A4 或 Letter
+    orientation: "portrait"
+    top_margin_cm: 2.54
+    bottom_margin_cm: 2.54
+    left_margin_cm: 3.18
+    right_margin_cm: 3.18
+
+  font:
+    name: "Times New Roman"
+    size_pt: 12
+
+  heading1:
+    font: "Times New Roman"
+    size_pt: 14
+    bold: true
+    space_before_pt: 12
+    space_after_pt: 6
+
+  heading2:
+    font: "Times New Roman"
+    size_pt: 12
+    bold: true
+    space_before_pt: 10
+    space_after_pt: 4
+
+  heading3:
+    font: "Times New Roman"
+    size_pt: 12
+    bold: true
+    space_before_pt: 8
+    space_after_pt: 4
+
+  table:
+    font_size_pt: 9
+    header_bold: true
+    caption_bold: true
+    caption_position: "above"  # above or below
+
+  abstract:
+    bold_keyword: true
+    indent_first_line: false
+
+  references:
+    indent_style: "hanging"   # hanging = first line no indent, rest indented
+    indent_cm: 0.74
+
+  line_spacing: 1.5
+
+# ── LaTeX / PDF 格式设置 ───────────────────────────────────────────────────
+latex:
+  document_class: "article"    # article, report, book
+  font_size_pt: 12
+  page_size: "a4paper"
+  margins:
+    top_cm: 2.54
+    bottom_cm: 2.54
+    left_cm: 3.18
+    right_cm: 3.18
+
+  font: "times"               # times (Times New Roman), lmodern, or fontspec
+  line_spacing: 1.5           # \linespread{1.5}
+
+  packages:
+    - "booktabs"              # Professional three-line tables
+    - "amsmath"
+    - "amssymb"
+    - "graphicx"
+    - "hyperref"
+
+  table_style: "booktabs"      # booktabs = three-line table
+
+  section_numbering: true     # Include section numbers (1., 1.1, 1.1.1)
+  reference_style: "plain"     # plain, numbers, alpha
+
+# ── 常用期刊预设 ────────────────────────────────────────────────────────────
+presets:
+  mis_quarterly:
+    description: "MIS Quarterly (IS顶刊，单栏，APA格式)"
+    word:
+      font_size_pt: 11
+      left_margin_cm: 2.86
+      right_margin_cm: 2.86
+    latex:
+      document_class: "article"
+      font_size_pt: 11
+
+  is_research:
+    description: "Information Systems Research (双栏)"
+    word:
+      columns: 2
+      font_size_pt: 11
+    latex:
+      document_class: "article"
+      multicol: true
+
+  ja_is:
+    description: "Journal of the AIS (单栏，APA格式)"
+    word:
+      font_size_pt: 11
+    latex:
+      document_class: "article"
+      font_size_pt: 11

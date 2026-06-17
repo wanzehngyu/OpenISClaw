@@ -1,0 +1,85 @@
+\documentclass[12pt,a4paper,oneside]{article}
+
+% ── Packages ──────────────────────────────────────────────────────────────
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{times}           % Times New Roman font
+\usepackage{geometry}
+\geometry{top=2.54cm,bottom=2.54cm,left=3.18cm,right=3.18cm}
+\usepackage{booktabs}        % Three-line table (professional academic style)
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\hypersetup{colorlinks=true,linkcolor=black,citecolor=black}
+
+% ── Paragraph & Line spacing ──────────────────────────────────────────────
+\setlength{\parindent}{2em}   % Chinese standard: 2 em for first-line indent
+\setlength{\parskip}{6pt}     % Small space between paragraphs
+\linespread{1.5}              % 1.5 line spacing
+
+% ── Section heading styles ────────────────────────────────────────────────
+\makeatletter
+\def\@sect#1#2#3#4#5#6[#7]{%
+  \ifnum #2>\@ne
+    \refstepcounter{#1}%
+    \ifnum #2<4
+      \typeout{#1\space\arabic{#1}}%
+    \fi
+  \fi
+  \par\nobreak
+  \ifnum #2>\@ne \newpage\fi
+  \@tempskipa #3\relax
+  \ifdim \@tempskipa>\z@
+    \begingroup
+      #6{%
+        \@hangfrom{\hskip #4\relax}%
+          \interlinepenalty \@M #7\@@par}%
+    \endgroup
+    \csname #1mark\endcsname{#7}%
+    \addcontentsline{toc}{#1}{\ifnum #2>\@ne\protect\numberline{\csname the#1\endcsname}\fi#7}%
+  \else
+    \def\@svsecdd{%
+      \addpenalty{\@secpenalty}%
+      \addvspace{#3}%
+      \@ifstar{%
+        \edef\@svsec{\toclevel@#1{\@secnumfont{\csname the#1\endcsname}}}%
+      }{%
+        \edef\@svsec{\toclevel@#1{\@secnumfont{\csname the#1\endcsname}}}%
+      }%
+      \protected@edef\@svsec{\@svsec\enspace #7}%
+      \unskip\@svsec\@@par
+    }%
+  \fi
+  \ifnum #2>\@ne
+    \@xsect{#3}%
+  \fi}
+\makeatother
+
+% ── Table styles ─────────────────────────────────────────────────────────
+\def\toprule{\hline\hline}
+\def\midrule{\cline{2-\hlen}}
+\def\bottomrule{\hline\hline}
+
+% ── Abstract environment ─────────────────────────────────────────────────
+\renewenvironment{abstract}{%
+  \if@twocolumn
+    \section*{摘要}%
+  \else
+    \small
+    \quotation
+  \fi
+}{%
+  \if@twocolumn\else\endquotation\fi
+}
+
+% ── Document begins ───────────────────────────────────────────────────────
+\begin{document}
+
+% Override default title
+\let\oldmaketitle\maketitle
+\def\maketitle{\oldmaketitle}
+
+% Paper body inserted by converter.py:
+{BODY}
+
+\end{document}

@@ -5,7 +5,7 @@
 **面向管理信息系统（IS）专业师生的因果推断与计量分析 OpenClaw 技能矩阵**
 
 [![OpenClaw Skill](https://img.shields.io/badge/OpenClaw-Skill-blue.svg)](https://docs.openclaw.ai)
-[![Skills Count](https://img.shields.io/badge/Skills-15-brightgreen?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZmlsbD0id2hpdGUiIGQ9Ik0xMiAyQzYuNDggMiAyIDYuNDggMiAxMnM0LjQ4IDEwIDEwIDEwIDEwLTQuNDggMTAtMTBTMTcuNTIgMiAxMiAyem0tMiAxNWwtNS01IDEuNDEtMS40MUwxMCAxNC4xN2w3LjU5LTcuNTlMMTkgOGwtOSA5eiIvPjwvc3ZnPg==)](https://github.com/wanzehngyu/OpenISClaw)
+[![Skills Count](https://img.shields.io/badge/Skills-17-brightgreen?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZmlsbD0id2hpdGUiIGQ9Ik0xMiAyQzYuNDggMiAyIDYuNDggMiAxMnM0LjQ4IDEwIDEwIDEwIDEwLTQuNDggMTAtMTBTMTcuNTIgMiAxMiAyem0tMiAxNWwtNS01IDEuNDEtMS40MUwxMCAxNC4xN2w3LjU5LTcuNTlMMTkgOGwtOSA5eiIvPjwvc3ZnPg==)](https://github.com/wanzehngyu/OpenISClaw)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Platform](https://img.shields.io/badge/Platform-OpenClaw-orange?style=for-the-badge)](https://github.com/openclaw/openclaw)
 
@@ -47,6 +47,8 @@ stargazer-exporter ──→ LaTeX/HTML/Word 发表级表格
 | **[propensity-score-matching](skills/propensity-score-matching/)** | 倾向得分匹配（PSM）反事实估计 | "PSM"、"倾向得分匹配"、"匹配估计" |
 | **[survival-analysis](skills/survival-analysis/)** | Cox 比例风险模型与生存分析 | "生存分析"、"Cox模型"、"Kaplan-Meier" |
 | **[paper-writer](skills/paper-writer/)** | 实证论文写作：将实证结果整合为完整学术论文 | "写论文"、"生成论文"、"学术论文"、"发表级论文" |
+| **[markdown-to-paper](skills/markdown-to-paper/)** | Markdown 论文转换为 Word/PDF，支持 LaTeX 模板 | "转换格式"、"生成 PDF"、"导出 Word" |
+| **[word-template-filler](skills/word-template-filler/)** | 将 Markdown 内容填充至 Word 模板，保持格式样式 | "填充模板"、"生成 Word 文档"、"按模板生成论文" |
 
 ## 🔧 安装依赖
 
@@ -327,7 +329,30 @@ is-econometrics-skills/
 │       │   └── survival_analysis.py
 │       └── references/
 │           └── survival-analysis-guide.md
-│   └── paper-writer/            # 实证论文写作
+│   ├── paper-writer/            # 实证论文写作
+│       ├── SKILL.md
+│       ├── scripts/
+│       │   ├── outline_generator.py       # 论文大纲生成
+│       │   ├── literature_fetcher.py       # 文献检索（Tavily）
+│       │   └── paper_writer.py             # 完整论文生成
+│       └── references/
+│           ├── paper-structure-template.md # 论文结构模板
+│           └── is-journal-standards.md      # IS 期刊格式规范
+│   ├── markdown-to-paper/        # Markdown → Word/PDF 格式转换
+│       ├── SKILL.md
+│       ├── scripts/
+│       │   ├── converter.py              # 主转换器（LaTeX/Word）
+│       │   └── markdown_parser.py         # Markdown 解析器
+│       └── references/
+│           ├── default_latex_template.tex  # 默认 LaTeX 模板
+│           └── template_config.yaml      # 模板配置
+│   └── word-template-filler/     # Word 模板填充（占位符替换）
+│       ├── SKILL.md
+│       ├── scripts/
+│       │   ├── filler.py                 # 主填充脚本
+│       │   └── md_parser.py              # Markdown 解析器
+│       └── references/
+│           └── template-guide.md         # 模板制作指南
 │       ├── SKILL.md
 │       ├── scripts/
 │       │   ├── outline_generator.py       # 论文大纲生成
