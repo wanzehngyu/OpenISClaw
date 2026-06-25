@@ -10,8 +10,3 @@ venv/
 .coverage
 htmlcov/
 dist/*.skill
-
-# Docker 运行时目录
-user_workspace/
-user_data/
-user_output/

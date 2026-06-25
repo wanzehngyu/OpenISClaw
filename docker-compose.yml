@@ -1,0 +1,35 @@
+# OpenISClaw — docker-compose 快速启动
+# 用法: docker compose run --rm is-econometrics python <脚本路径> [参数]
+#
+# 示例：
+#   docker compose run --rm is-econometrics \
+#     python /app/skills/panel-regression/scripts/panel_regression.py \
+#     --data /app/user_data/panel.csv \
+#     --y roa \
+#     --x "it_investment_g co_size_ln lev" \
+#     --entity firm_id \
+#     --time year \
+#     --output_pickle /app/user_output/results.pkl
+
+services:
+  is-econometrics:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: openisclaw/is-econometrics:latest
+    container_name: openisclaw-is-econometrics
+    stdin_open: true
+    tty: true
+    volumes:
+      # 技能包（只读）
+      - ./skills:/app/skills:ro
+      - ./dist:/app/dist:ro
+      - ./examples:/app/examples:ro
+      # 用户工作区（读写）
+      - ./user_workspace:/app/user_workspace
+      # 数据目录（读写）
+      - ./user_data:/app/user_data
+      # 输出目录（读写）
+      - ./user_output:/app/user_output
+    working_dir: /app/user_workspace
+    restart: "no"

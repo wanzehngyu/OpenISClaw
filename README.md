@@ -9,6 +9,21 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Platform](https://img.shields.io/badge/Platform-OpenClaw-orange?style=for-the-badge)](https://github.com/openclaw/openclaw)
 
+---
+
+## 🗞️ 最新更新（Changelog）
+
+### v0.2.0 — 2026-06-25
+
+**新功能：Docker 免安装运行方式**
+
+- 新增 `Dockerfile` + `docker-compose.yml`，无需本地安装 OpenClaw 即可运行所有技能
+- 新增 `Makefile`，一键构建镜像、运行示例分析脚本
+- 重新组织目录结构：`user_data/`（数据）、`user_output/`（输出）、`user_workspace/`（工作区）
+- 详情见 [方式三：Docker 免安装运行](#方式三docker-免安装运行无需本地-openclaw)
+
+---
+
 ## 🎯 目标
 
 用户上传数据（.dta/.csv/.xlsx）并提出分析需求 → 全自动完成从数据探查到因果推断再到发表级表格输出。
@@ -85,6 +100,41 @@ openclaw skill install ./dist/panel-regression.skill
 openclaw skill install ./dist/staggered-did.skill
 openclaw skill install ./dist/stargazer-exporter.skill
 ```
+
+### 方式三：Docker 免安装运行（无需本地 OpenClaw）
+
+> 适用于**没有安装 OpenClaw** 的用户，Docker 方式通过容器内 Python 脚本执行分析，
+> 结果直接在终端返回，无需任何对话式交互。
+
+```bash
+# 克隆项目
+git clone https://github.com/wanzehngyu/OpenISClaw.git
+cd OpenISClaw
+
+# 构建镜像（首次运行需几分钟）
+make build
+
+# 放入数据：将你的 .csv/.dta/.xlsx 文件放入 ./user_data/
+
+# 运行面板回归（示例）
+make example-panel
+
+# 查看所有可用脚本
+make skills-list
+
+# 进入容器交互式环境（可选）
+make shell
+```
+
+**目录说明：**
+- `./user_data/` — 放入你的数据文件（.csv/.dta/.xlsx），容器内外共享
+- `./user_output/` — 分析结果输出目录，容器内外共享
+- `./user_workspace/` — 交互式工作目录
+- `./skills/` — 技能包（只读），对应 Git 仓库 skills 目录
+
+**前置要求：** [Docker Desktop](https://www.docker.com/products/docker-desktop/)（macOS/Windows）或 Docker Engine（Linux）
+
+---
 
 ## 🚀 快速开始
 
