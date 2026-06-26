@@ -15,17 +15,20 @@
 
 ### v0.2.2 — 2026-06-26
 
-**重大升级：paper-writer 技能 — 分章节生成 + 多模板支持**
+**paper-writer 重大升级 + Docker 三模式运行全面支持**
 
-- **全新写作流程**：采用"分章节生成 → 编译检查 → 整合输出"的迭代工作流，每节生成后立即写入 LaTeX 并编译检查，避免最后编译才发现问题
-- **标准 6 节论文结构**：固定结构为 Introduction → Theoretical Foundations（理论深度阐述）→ Hypotheses Development（每个假设含完整理论推导）→ Methodology → Empirical Results → Discussion（含 Conclusion 子节）
-- **假设必须有理论推导**：Hypotheses Development 每节必须包含"假设内容 + 理论依据（从理论核心主张出发的完整推导）+ 对应变量"三要素，禁止直接罗列假设而无推导过程
-- **所有引用必须入文**：所有 `\cite{}` 均写入正文，BibTeX 只包含被实际引用的条目，确保参考文献数量与文中引用一致
-- **多模板架构**：新增 `templates/` 目录，首个内置模板为 `ieee_dual_column`（IEEEtran 双栏格式），支持后续扩展单栏等模板
-- **新增 `latex_writer.py`**：核心分章节 LaTeX 生成脚本，支持 `--section` 参数指定生成哪节（introduction/theory/hypotheses/methodology/results/discussion）
-- **新增 `latex_compiler.py`**：XeLaTeX×3 + BibTeX 编译检查工具，输出错误/警告/BBL条目数/PDF大小完整报告
-- **内置理论数据库扩展**：新增 IS 成功模型（Delone & McLean）、认知负荷理论、检索练习理论、制度理论（IS情境）等理论的完整核心主张与引用 key
-- **写作规范内置**：表格宽度限制（单栏 ≤ 3.5in，`table*` 跨栏 ≤ 7in）、图片宽度上限（0.48\textwidth）等规范已写入 skill，不可忽略
+**paper-writer 技能升级（分章节生成 + 多模板）：**
+- 全新"分章节生成 → 编译检查 → 整合输出"工作流，每节生成后立即检查，避免最后才发现问题
+- 固定 6 节结构：Introduction → Theoretical Foundations（理论深度阐述）→ Hypotheses Development（每假设含理论推导）→ Methodology → Empirical Results → Discussion（含 Conclusion 子节）
+- **假设必须有理论依据**（含内容+理论推导+变量），**所有引用必须在正文中 `\cite{}`**，写作规范内置于 skill
+- 多模板架构：内置 `ieee_dual_column`（IEEEtran 双栏）模板；新增 `latex_writer.py`（分章节生成）、`latex_compiler.py`（编译检查）
+
+**Docker 三模式运行（无需本地 OpenClaw）：**
+- `skills/agent-loop/`：对话式 Agent Loop（`docker-entrypoint.py`），自然语言 → 自动执行分析
+- API Server（`api-server.py`）：REST API，支持 `POST /analyze` 任务提交
+- `skills_registry.py`：统一注册表，供 LLM 智能调用 17 个技能
+- 路径自适应：自动检测 Docker / 本地原生环境
+- 快捷命令：`make chat`（对话）/ `make api-run`（API服务）/ `make api`（单次调用）
 
 ---
 
