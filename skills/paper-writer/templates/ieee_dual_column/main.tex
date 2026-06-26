@@ -1,0 +1,61 @@
+\documentclass[journal,twoside]{IEEEtran}
+
+\usepackage[top=2.54cm,bottom=2.54cm,left=2.54cm,right=2.54cm]{geometry}
+\usepackage{cite,amsmath,amssymb,amsfonts}
+\usepackage{graphicx,textcomp,booktabs,siunitx}
+\usepackage{newtxtext,newtxmath}
+\usepackage{hyperref}
+\usepackage{xcolor,url}
+\usepackage[hang,small,bf]{caption}
+\usepackage{enumitem}
+\setlist{itemsep=0.05em,topsep=0.1em,partopsep=0pt}
+
+\begin{document}
+
+%% TITLE (override in project output)
+%% AUTHORS (override in project output)
+
+\maketitle
+
+%% ========================
+%% ABSTRACT + INDEX TERMS
+%% ========================
+\noindent\textbf{Abstract} --- ABSTRACT_PLACEHOLDER
+
+\bigskip
+\noindent\textbf{Index Terms} --- INDEXTERMS_PLACEHOLDER
+
+%% ========================
+%% SECTIONS
+%% ========================
+\section{Introduction}
+\label{sec:introduction}
+\input{templates/ieee_dual_column/sections/section_introduction.tex}
+
+\section{Theoretical Foundations}
+\label{sec:theory}
+\input{templates/ieee_dual_column/sections/section_theory.tex}
+
+\section{Hypotheses Development}
+\label{sec:hypotheses}
+\input{templates/ieee_dual_column/sections/section_hypotheses.tex}
+
+\section{Methodology}
+\label{sec:methodology}
+\input{templates/ieee_dual_column/sections/section_methodology.tex}
+
+\section{Empirical Results}
+\label{sec:results}
+\input{templates/ieee_dual_column/sections/section_results.tex}
+
+\section{Discussion}
+\label{sec:discussion}
+\input{templates/ieee_dual_column/sections/section_discussion.tex}
+
+%% ========================
+%% BIBLIOGRAPHY
+%% ========================
+\bibliographystyle{IEEEtran}
+\bibliography{refs}
+
+\end{document}

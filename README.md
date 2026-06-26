@@ -13,26 +13,19 @@
 
 ## 🗞️ 最新更新（Changelog）
 
-### v0.2.1 — 2026-06-26
+### v0.2.2 — 2026-06-26
 
-**新增：agent-loop 模块 — 无 OpenClaw 环境的对话式 Agent 支持**
+**重大升级：paper-writer 技能 — 分章节生成 + 多模板支持**
 
-- 新增 `skills/agent-loop/` 模块，为没有安装 OpenClaw 的用户提供两种无门槛交互方式：
-  - **对话式 Agent Loop**（`docker-entrypoint.py`）：交互式命令行，自然语言 → 自动执行分析
-  - **HTTP API Server**（`api-server.py`）：REST API，支持 `POST /analyze` 自然语言任务提交
-- 新增 `skills_registry.py`：统一注册表，包含 17 个技能的脚本路径、参数说明和使用示例，供 LLM 调用
-- 路径自适应：自动检测 Docker 环境或本地原生环境，适配不同路径
-- 新增 `requirements-agent.txt`：本地（无 Docker）运行所需依赖清单
-- 新增 `make chat` / `make api-run` / `make api` 快捷命令
-- 详情见 [方式三：Docker 免安装运行](#方式三docker-免安装运行无需本地-openclaw)
-
-### v0.2.0 — 2026-06-25
-
-**新功能：Docker 免安装运行方式**
-
-- 新增 `Dockerfile` + `docker-compose.yml`，无需本地安装 OpenClaw 即可运行所有技能
-- 新增 `Makefile`，一键构建镜像、运行示例分析脚本
-- 重新组织目录结构：`user_data/`（数据）、`user_output/`（输出）、`user_workspace/`（工作区）
+- **全新写作流程**：采用"分章节生成 → 编译检查 → 整合输出"的迭代工作流，每节生成后立即写入 LaTeX 并编译检查，避免最后编译才发现问题
+- **标准 6 节论文结构**：固定结构为 Introduction → Theoretical Foundations（理论深度阐述）→ Hypotheses Development（每个假设含完整理论推导）→ Methodology → Empirical Results → Discussion（含 Conclusion 子节）
+- **假设必须有理论推导**：Hypotheses Development 每节必须包含"假设内容 + 理论依据（从理论核心主张出发的完整推导）+ 对应变量"三要素，禁止直接罗列假设而无推导过程
+- **所有引用必须入文**：所有 `\cite{}` 均写入正文，BibTeX 只包含被实际引用的条目，确保参考文献数量与文中引用一致
+- **多模板架构**：新增 `templates/` 目录，首个内置模板为 `ieee_dual_column`（IEEEtran 双栏格式），支持后续扩展单栏等模板
+- **新增 `latex_writer.py`**：核心分章节 LaTeX 生成脚本，支持 `--section` 参数指定生成哪节（introduction/theory/hypotheses/methodology/results/discussion）
+- **新增 `latex_compiler.py`**：XeLaTeX×3 + BibTeX 编译检查工具，输出错误/警告/BBL条目数/PDF大小完整报告
+- **内置理论数据库扩展**：新增 IS 成功模型（Delone & McLean）、认知负荷理论、检索练习理论、制度理论（IS情境）等理论的完整核心主张与引用 key
+- **写作规范内置**：表格宽度限制（单栏 ≤ 3.5in，`table*` 跨栏 ≤ 7in）、图片宽度上限（0.48\textwidth）等规范已写入 skill，不可忽略
 
 ---
 
@@ -454,12 +447,21 @@ is-econometrics-skills/
 │   ├── paper-writer/            # 实证论文写作
 │       ├── SKILL.md
 │       ├── scripts/
-│       │   ├── outline_generator.py       # 论文大纲生成
-│       │   ├── literature_fetcher.py       # 文献检索（Tavily）
-│       │   └── paper_writer.py             # 完整论文生成
-│       └── references/
-│           ├── paper-structure-template.md # 论文结构模板
-│           └── is-journal-standards.md      # IS 期刊格式规范
+│       │   ├── outline_generator.py       # 论文大纲生成（可选预览）
+│       │   ├── literature_fetcher.py     # 文献检索（Tavily）
+│       │   ├── latex_writer.py           # LaTeX 分章节生成（核心）
+│       │   ├── latex_compiler.py         # LaTeX 编译检查工具
+│       │   └── paper_writer.py           # Markdown 版论文生成（Legacy）
+│       ├── references/
+│       │   ├── paper-structure-template.md # 各章节写作规范与字数参考
+│       │   └── is-journal-standards.md    # IS 期刊格式规范
+│       └── templates/
+│           ├── ieee_dual_column/          # IEEEtran 双栏模板（默认）
+│           │   ├── main.tex               # 主文档（\input{} 章节指令）
+│           │   ├── refs.bib              # BibTeX 文献文件
+│           │   └── sections/             # 章节 .tex 文件（latex_writer.py 生成）
+│           └── single_column/             # 单栏模板（预留扩展）
+│               └── main.tex
 │   ├── markdown-to-paper/        # Markdown → Word/PDF 格式转换
 │       ├── SKILL.md
 │       ├── scripts/
