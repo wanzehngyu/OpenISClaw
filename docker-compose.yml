@@ -1,17 +1,27 @@
 # OpenISClaw — docker-compose 快速启动
-# 用法: docker compose run --rm is-econometrics python <脚本路径> [参数]
 #
-# 示例：
+# ══════════════════════════════════════════════════════
+# 用法索引
+# ══════════════════════════════════════════════════════
+#
+# 脚本执行（无需 OpenClaw / 无 LLM）：
 #   docker compose run --rm is-econometrics \
-#     python /app/skills/panel-regression/scripts/panel_regression.py \
-#     --data /app/user_data/panel.csv \
-#     --y roa \
-#     --x "it_investment_g co_size_ln lev" \
-#     --entity firm_id \
-#     --time year \
-#     --output_pickle /app/user_output/results.pkl
+#     python /app/skills/panel-regression/scripts/panel_regression.py ...
+#
+# 对话式 Agent（需要 OPENAI_API_KEY）：
+#   docker compose run --rm is-econometrics-chat
+#
+# HTTP API 服务：
+#   docker compose up api          # 前台运行
+#   docker compose up -d api        # 后台运行
+#
+# 交互式 Shell：
+#   docker compose run --rm is-econometrics-shell
+#
+# ══════════════════════════════════════════════════════
 
 services:
+  # ── 纯脚本执行（原有模式，保持向后兼容）────────────────
   is-econometrics:
     build:
       context: .
@@ -21,15 +31,72 @@ services:
     stdin_open: true
     tty: true
     volumes:
-      # 技能包（只读）
       - ./skills:/app/skills:ro
       - ./dist:/app/dist:ro
       - ./examples:/app/examples:ro
-      # 用户工作区（读写）
       - ./user_workspace:/app/user_workspace
-      # 数据目录（读写）
       - ./user_data:/app/user_data
-      # 输出目录（读写）
       - ./user_output:/app/user_output
+    working_dir: /app/user_workspace
+    restart: "no"
+
+  # ── 对话式 Agent Loop（方案二）────────────────────────
+  is-econometrics-chat:
+    image: openisclaw/is-econometrics:latest
+    container_name: openisclaw-is-econometrics-chat
+    stdin_open: true
+    tty: true
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OPENAI_BASE_URL=${OPENAI_BASE_URL:-https://api.openai.com/v1}
+      - MODEL=${MODEL:-gpt-4o}
+    env_file:
+      - .env
+    volumes:
+      - ./skills:/app/skills:ro
+      - ./user_data:/app/user_data
+      - ./user_output:/app/user_output
+    working_dir: /app
+    restart: "no"
+    # 直接运行 Agent Loop，无需 extra commands
+    entrypoint: ["python", "/app/skills/agent-loop/docker-entrypoint.py"]
+
+  # ── HTTP API 服务（方案三）────────────────────────────
+  api:
+    image: openisclaw/is-econometrics:latest
+    container_name: openisclaw-is-econometrics-api
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OPENAI_BASE_URL=${OPENAI_BASE_URL:-https://api.openai.com/v1}
+      - MODEL=${MODEL:-gpt-4o}
+      - PORT=8000
+    env_file:
+      - .env
+    volumes:
+      - ./skills:/app/skills:ro
+      - ./user_data:/app/user_data
+      - ./user_output:/app/user_output
+    working_dir: /app
+    restart: "no"
+    ports:
+      - "8000:8000"
+    entrypoint: ["python", "/app/skills/agent-loop/api-server.py"]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ── 交互式 Shell（原有，保持）──────────────────────────
+  is-econometrics-shell:
+    image: openisclaw/is-econometrics:latest
+    container_name: openisclaw-is-econometrics-shell
+    stdin_open: true
+    tty: true
+    volumes:
+      - ./skills:/app/skills:ro
+      - ./user_data:/app/user_data
+      - ./user_output:/app/user_output
+      - ./user_workspace:/app/user_workspace
     working_dir: /app/user_workspace
     restart: "no"

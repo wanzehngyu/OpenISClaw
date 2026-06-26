@@ -39,6 +39,14 @@ RUN pip install --no-cache-dir \
     stargazer \
     python-docx
 
+# ─── Agent Loop / API Server 依赖 ─────────────────────────
+# 无 OpenClaw 时的对话式 / HTTP API 能力
+RUN pip install --no-cache-dir \
+    openai \
+    fastapi \
+    uvicorn \
+    curl
+
 # ─── 工作目录 ────────────────────────────────────────────────
 WORKDIR /app
 

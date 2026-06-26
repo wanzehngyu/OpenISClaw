@@ -1,0 +1,28 @@
+# OpenISClaw Agent Loop — 本地安装依赖
+# 用于：无 Docker / 无 OpenClaw 的用户，直接在本地 Python 环境运行
+
+# 核心计量依赖（已包含在 skills 中，这里列出便于 pip install）
+pandas
+numpy
+scipy
+statsmodels
+linearmodels
+pyreadstat
+scikit-learn
+matplotlib
+seaborn
+openpyxl
+xlrd
+
+# 多时点 DID（可选）
+moderndid
+plotnine
+
+# 表格导出（可选）
+stargazer
+python-docx
+
+# ── Agent Loop / API Server 必需 ────────────────────────
+openai>=1.0.0
+fastapi>=0.100.0
+uvicorn[standard]>=0.23.0

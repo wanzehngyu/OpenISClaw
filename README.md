@@ -5,13 +5,26 @@
 **面向管理信息系统（IS）专业师生的因果推断与计量分析 OpenClaw 技能矩阵**
 
 [![OpenClaw Skill](https://img.shields.io/badge/OpenClaw-Skill-blue.svg)](https://docs.openclaw.ai)
-[![Skills Count](https://img.shields.io/badge/Skills-17-brightgreen?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZmlsbD0id2hpdGUiIGQ9Ik0xMiAyQzYuNDggMiAyIDYuNDggMiAxMnM0LjQ4IDEwIDEwIDEwIDEwLTQuNDggMTAtMTBTMTcuNTIgMiAxMiAyem0tMiAxNWwtNS01IDEuNDEtMS40MUwxMCAxNC4xN2w3LjU5LTcuNTlMMTkgOGwtOSA5eiIvPjwvc3ZnPg==)](https://github.com/wanzehngyu/OpenISClaw)
+[![Skills Count](https://img.shields.io/badge/Skills-18-brightgreen?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZmlsbD0id2hpdGUiIGQ9Ik0xMiAyQzYuNDggMiAyIDYuNDggMiAxMnM0LjQ4IDEwIDEwIDEwIDEwLTQuNDggMTAtMTBTMTcuNTIgMiAxMiAyem0tMiAxNWwtNS01IDEuNDEtMS40MUwxMCAxNC4xN2w3LjU5LTcuNTlMMTkgOGwtOSA5eiIvPjwvc3ZnPg==)](https://github.com/wanzehngyu/OpenISClaw)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Platform](https://img.shields.io/badge/Platform-OpenClaw-orange?style=for-the-badge)](https://github.com/openclaw/openclaw)
 
 ---
 
 ## 🗞️ 最新更新（Changelog）
+
+### v0.2.1 — 2026-06-26
+
+**新增：agent-loop 模块 — 无 OpenClaw 环境的对话式 Agent 支持**
+
+- 新增 `skills/agent-loop/` 模块，为没有安装 OpenClaw 的用户提供两种无门槛交互方式：
+  - **对话式 Agent Loop**（`docker-entrypoint.py`）：交互式命令行，自然语言 → 自动执行分析
+  - **HTTP API Server**（`api-server.py`）：REST API，支持 `POST /analyze` 自然语言任务提交
+- 新增 `skills_registry.py`：统一注册表，包含 17 个技能的脚本路径、参数说明和使用示例，供 LLM 调用
+- 路径自适应：自动检测 Docker 环境或本地原生环境，适配不同路径
+- 新增 `requirements-agent.txt`：本地（无 Docker）运行所需依赖清单
+- 新增 `make chat` / `make api-run` / `make api` 快捷命令
+- 详情见 [方式三：Docker 免安装运行](#方式三docker-免安装运行无需本地-openclaw)
 
 ### v0.2.0 — 2026-06-25
 
@@ -20,7 +33,6 @@
 - 新增 `Dockerfile` + `docker-compose.yml`，无需本地安装 OpenClaw 即可运行所有技能
 - 新增 `Makefile`，一键构建镜像、运行示例分析脚本
 - 重新组织目录结构：`user_data/`（数据）、`user_output/`（输出）、`user_workspace/`（工作区）
-- 详情见 [方式三：Docker 免安装运行](#方式三docker-免安装运行无需本地-openclaw)
 
 ---
 
@@ -64,11 +76,13 @@ stargazer-exporter ──→ LaTeX/HTML/Word 发表级表格
 | **[paper-writer](skills/paper-writer/)** | 实证论文写作：将实证结果整合为完整学术论文 | "写论文"、"生成论文"、"学术论文"、"发表级论文" |
 | **[markdown-to-paper](skills/markdown-to-paper/)** | Markdown 论文转换为 Word/PDF，支持 LaTeX 模板 | "转换格式"、"生成 PDF"、"导出 Word" |
 | **[word-template-filler](skills/word-template-filler/)** | 将 Markdown 内容填充至 Word 模板，保持格式样式 | "填充模板"、"生成 Word 文档"、"按模板生成论文" |
+| **[agent-loop](skills/agent-loop/)** | 无 OpenClaw 环境的对话式 Agent 运行时（LLM 驱动） | "对话式分析"、"AI 助手"、"自然语言分析" |
 
 ## 🔧 安装依赖
 
+### 核心计量依赖
+
 ```bash
-# 核心依赖
 pip install linearmodels pandas pyreadstat
 
 # 多时点 DID（可选）
@@ -77,6 +91,14 @@ pip install moderndid plotnine
 # 表格导出（可选）
 pip install stargazer python-docx
 ```
+
+### Agent Loop / API Server 依赖（方式三：无 OpenClaw 环境）
+
+```bash
+pip install -r skills/agent-loop/requirements-agent.txt
+```
+
+包含：`openai` `fastapi` `uvicorn` 及上述核心计量依赖。
 
 ## 📥 安装技能
 
@@ -103,8 +125,10 @@ openclaw skill install ./dist/stargazer-exporter.skill
 
 ### 方式三：Docker 免安装运行（无需本地 OpenClaw）
 
-> 适用于**没有安装 OpenClaw** 的用户，Docker 方式通过容器内 Python 脚本执行分析，
-> 结果直接在终端返回，无需任何对话式交互。
+> 适用于**没有安装 OpenClaw** 的用户，支持三种 Docker 模式：
+> 1. **纯脚本** — 直接运行 Python 脚本，适合有技术背景的用户
+> 2. **对话式 Agent Loop** — 自然语言交互，LLM 理解需求后自动执行分析
+> 3. **HTTP API Server** — 提供 REST API，适合程序调用或二次开发
 
 ```bash
 # 克隆项目
@@ -115,15 +139,61 @@ cd OpenISClaw
 make build
 
 # 放入数据：将你的 .csv/.dta/.xlsx 文件放入 ./user_data/
+```
 
-# 运行面板回归（示例）
-make example-panel
+#### 模式一：纯脚本执行（原有，适合有技术背景的用户）
 
-# 查看所有可用脚本
-make skills-list
+```bash
+make example-panel                    # 运行面板回归示例
+make skills-list                      # 查看所有可用脚本
+docker compose run --rm is-econometrics-shell   # 进入交互式环境
+```
 
-# 进入容器交互式环境（可选）
-make shell
+#### 模式二：对话式 Agent Loop（自然语言 → 自动分析）
+
+```bash
+# 设置 API Key
+cp .env.example .env
+# 编辑 .env，填入 OPENAI_API_KEY
+
+# 启动交互式对话
+make chat
+```
+
+对话示例：
+```
+📩 你: 分析这个面板数据，对ROA做双向固定效应回归，聚类到企业层面
+🤖 OpenISClaw： 自动选择 panel-regression 技能，推荐脚本命令
+⏎ 是否执行此命令？ → y
+⚙️  执行中...
+📊 回归结果：...（自动输出发表级表格）
+```
+
+#### 模式三：HTTP API Server（适合程序调用）
+
+```bash
+# 启动 API 服务
+make api-run
+
+# 查看所有可用技能
+curl http://localhost:8000/skills
+
+# 发送分析任务
+curl -X POST http://localhost:8000/analyze \
+  -H "Content-Type: application/json" \
+  -d '{"task": "对面板数据做双向固定效应回归", "data_path": "/app/user_data/panel.csv"}'
+
+# 直接执行指定脚本
+curl -X POST http://localhost:8000/execute \
+  -H "Content-Type: application/json" \
+  -d '{"skill": "panel-regression", "args": ["--data", "/app/user_data/panel.csv", "--y", "roa", "--entity", "firm_id", "--time", "year"]}'
+```
+
+**环境变量（写入 `.env` 文件）：**
+```bash
+OPENAI_API_KEY=sk-xxx      # 必需（Agent Loop / API 模式）
+MODEL=gpt-4o               # 可选，默认 gpt-4o
+OPENAI_BASE_URL=...        # 可选，自定义 API 地址
 ```
 
 **目录说明：**
@@ -133,6 +203,8 @@ make shell
 - `./skills/` — 技能包（只读），对应 Git 仓库 skills 目录
 
 **前置要求：** [Docker Desktop](https://www.docker.com/products/docker-desktop/)（macOS/Windows）或 Docker Engine（Linux）
+
+**与本地 OpenClaw 的关系：** 三种 Docker 模式完全独立，不影响本地 OpenClaw 用户的使用体验（`openclaw skill install ...` 照常工作）。
 
 ---
 
@@ -396,21 +468,19 @@ is-econometrics-skills/
 │       └── references/
 │           ├── default_latex_template.tex  # 默认 LaTeX 模板
 │           └── template_config.yaml      # 模板配置
-│   └── word-template-filler/     # Word 模板填充（占位符替换）
+│   ├── word-template-filler/     # Word 模板填充（占位符替换）
+│   │   ├── SKILL.md
+│   │   ├── scripts/
+│   │   │   ├── filler.py                 # 主填充脚本
+│   │   │   └── md_parser.py              # Markdown 解析器
+│   │   └── references/
+│   │       └── template-guide.md         # 模板制作指南
+│   └── agent-loop/               # 无 OpenClaw 环境的 Agent 运行时
 │       ├── SKILL.md
-│       ├── scripts/
-│       │   ├── filler.py                 # 主填充脚本
-│       │   └── md_parser.py              # Markdown 解析器
-│       └── references/
-│           └── template-guide.md         # 模板制作指南
-│       ├── SKILL.md
-│       ├── scripts/
-│       │   ├── outline_generator.py       # 论文大纲生成
-│       │   ├── literature_fetcher.py       # 文献检索（Tavily）
-│       │   └── paper_writer.py             # 完整论文生成
-│       └── references/
-│           ├── paper-structure-template.md # 论文结构模板
-│           └── is-journal-standards.md      # IS 期刊格式规范
+│       ├── skills_registry.py     # 技能注册表（供 LLM 调用）
+│       ├── docker-entrypoint.py   # 对话式 Agent Loop
+│       ├── api-server.py          # HTTP API Server
+│       └── requirements-agent.txt # 本地运行依赖
 └── dist/                       # 打包的 .skill 文件
     ├── is-econometrics.skill
     ├── panel-regression.skill
