@@ -21,6 +21,8 @@ class Section:
     level: int  # 1 = #, 2 = ##, etc.
     title: str
     content: List[Any] = field(default_factory=list)  # str (text) or Table or dict
+    is_appendix: bool = False  # True if this is an appendix section
+    is_acknowledgment: bool = False  # True if this is the acknowledgment section
 
 
 @dataclass
@@ -31,6 +33,7 @@ class Paper:
     keywords: str = ""
     sections: List[Section] = field(default_factory=list)
     references: List[str] = field(default_factory=list)
+    acknowledgment_text: str = ""  # Extracted acknowledgment content
 
 
 def parse_front_matter(lines: List[str]) -> tuple[Dict[str, Any], List[str]]:
@@ -221,7 +224,20 @@ def parse_markdown(text: str) -> Paper:
                 paper.sections.append(current_section)
             level = len(sec_match.group(1))
             title = sec_match.group(2).strip()
-            current_section = Section(level=level, title=title)
+            # Detect appendix / acknowledgment
+            is_appendix = bool(
+                re.match(r'^附录', title, re.IGNORECASE) or
+                re.match(r'^Appendix', title, re.IGNORECASE)
+            )
+            is_ack = bool(
+                re.match(r'^致谢', title, re.IGNORECASE) or
+                re.match(r'^Acknowledgment', title, re.IGNORECASE) or
+                re.match(r'^Acknowledgments', title, re.IGNORECASE)
+            )
+            current_section = Section(
+                level=level, title=title,
+                is_appendix=is_appendix, is_acknowledgment=is_ack
+            )
             current_content = []
             i += 1
             continue

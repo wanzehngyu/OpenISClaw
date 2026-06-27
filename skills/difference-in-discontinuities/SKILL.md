@@ -35,6 +35,52 @@ metadata:
 
 # Difference-in-Discontinuities: 断点回归设计
 
+## 安装与使用
+
+本技能支持三种安装运行方式：
+
+### 方式一：有 OpenClaw（推荐）
+
+OpenClaw 用户直接通过命令安装：
+
+```bash
+openclaw skill install difference-in-discontinuities
+```
+
+OpenClaw 会自动检测并安装所需 pip 依赖。
+
+### 方式二：纯 pip 安装（无 Docker / 无 OpenClaw）
+
+安装 pip 依赖后，直接运行脚本：
+
+```bash
+# 安装依赖（核心计量包）
+pip install pandas numpy scipy statsmodels
+
+# 运行脚本
+python skills/difference-in-discontinuities/scripts/rdd_analysis.py --help
+```
+
+### 方式三：Docker 免安装（无需本地 Python 环境）
+
+克隆项目后，用 Docker 运行 Agent Loop（自然语言交互）或 API Server：
+
+```bash
+git clone https://github.com/wanzehngyu/OpenISClaw.git
+cd OpenISClaw
+cp .env.example .env  # 编辑填入 OPENAI_API_KEY
+
+# 对话式 Agent Loop（自然语言 → 自动分析）
+make chat
+
+# HTTP API 服务
+make api-run
+# 访问 http://localhost:8000 查看所有技能并发起分析
+```
+
+详见 [项目 README](https://github.com/wanzehngyu/OpenISClaw) 。
+
+
 ## 概述
 
 当处理分配由一个连续变量是否超过某一阈值决定时，断点回归（Sharp RDD / Fuzzy RDD）可以估计出在阈值处的局部平均处理效应（Local ATE），被视为"准自然实验"。

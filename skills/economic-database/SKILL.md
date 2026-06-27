@@ -41,6 +41,51 @@ metadata:
 
 # Economic Database: 宏观经济数据库连接技能
 
+## 安装与使用
+
+本技能支持三种安装运行方式：
+
+### 方式一：有 OpenClaw（推荐）
+
+OpenClaw 用户直接通过命令安装：
+
+```bash
+openclaw skill install economic-database
+```
+
+OpenClaw 会自动检测并安装所需 pip 依赖。
+
+### 方式二：纯 pip 安装（无 Docker / 无 OpenClaw）
+
+安装 pip 依赖后，直接运行脚本：
+
+```bash
+# 安装依赖（核心计量包）
+pip install pandas numpy scipy wbdata fred requests
+
+# 运行脚本
+python skills/economic-database/scripts/fetch_macro_data.py --help
+```
+
+### 方式三：Docker 免安装（无需本地 Python 环境）
+
+克隆项目后，用 Docker 运行 Agent Loop（自然语言交互）或 API Server：
+
+```bash
+git clone https://github.com/wanzehngyu/OpenISClaw.git
+cd OpenISClaw
+cp .env.example .env  # 编辑填入 OPENAI_API_KEY
+
+# 对话式 Agent Loop（自然语言 → 自动分析）
+make chat
+
+# HTTP API 服务
+make api-run
+# 访问 http://localhost:8000 查看所有技能并发起分析
+```
+
+详见 [项目 README](https://github.com/wanzehngyu/OpenISClaw) 。
+
 ## 概述
 
 本技能提供连接多个主流宏观经济数据库的统一接口，支持数据检索、清洗与合并，直接输出可导入计量模型的 CSV/DataFrame 格式。
@@ -180,12 +225,3 @@ python {baseDir}/scripts/fetch_macro_data.py \
 - `references/worldbank-indicator-codes.md` — 常用World Bank指标代码速查表
 - `references/fred-common-series.md` — FRED常用数据系列速查表
 - `references/csmar-table-schema.md` — CSMAR数据库表结构说明
-
-## 依赖安装确认
-
-```bash
-python -c "import wbdata; print('wbdata OK')"
-python -c "from fred import Fred; print('fred OK')"
-python -c "import pandas; print('pandas OK')"
-python -c "import requests; print('requests OK')"
-```

@@ -1,6 +1,6 @@
 ---
 name: markdown-to-paper
-description: 面向已有完整Markdown格式论文草稿的研究者，将markdown文件转换为符合学术期刊格式规范的Word(.docx)或PDF文档。支持用户上传自定义Word模板文件以精确控制字体、字号、页边距、单双栏等格式；PDF输出基于LaTeX，可指定 cls 格式文件和编译选项。对于没有模板的用户，提供默认IS期刊格式（单栏，Times New Roman 12pt）。技能读取markdown论文内容和表格数据，自动生成标题、摘要、章节、脚注、参考文献和三线表。触发词："生成Word"、"生成PDF"、"输出论文"、"导出Word"、"导出PDF"、"格式转换"、"markdown转Word"、"markdown转PDF"。
+description: 面向已有完整Markdown格式论文草稿的研究者，将markdown文件转换为符合学术期刊格式规范的Word(.docx)或PDF文档。支持用户上传自定义Word模板文件以精确控制字体、字号、页边距、单双栏等格式；PDF输出基于LaTeX，可指定 cls 格式文件和编译选项。对于没有模板的用户，提供默认IEEE Transactions格式（双栏，IEEEtran.cls）。技能读取markdown论文内容和表格数据，自动生成标题、摘要、章节、脚注、参考文献和三线表。触发词："生成Word"、"生成PDF"、"输出论文"、"导出Word"、"导出PDF"、"格式转换"、"markdown转Word"、"markdown转PDF"。
 metadata: {
   "openclaw": {
     "emoji": "📄",
@@ -13,6 +13,52 @@ metadata: {
 ---
 
 # Markdown-to-Paper: 学术论文格式输出技能
+
+## 安装与使用
+
+本技能支持三种安装运行方式：
+
+### 方式一：有 OpenClaw（推荐）
+
+OpenClaw 用户直接通过命令安装：
+
+```bash
+openclaw skill install markdown-to-paper
+```
+
+OpenClaw 会自动检测并安装所需 pip 依赖。
+
+### 方式二：纯 pip 安装（无 Docker / 无 OpenClaw）
+
+安装 pip 依赖后，直接运行脚本：
+
+```bash
+# 安装依赖（核心计量包）
+pip install pandas numpy scipy python-docx pyyaml
+
+# 运行脚本
+python skills/markdown-to-paper/scripts/converter.py --help
+```
+
+### 方式三：Docker 免安装（无需本地 Python 环境）
+
+克隆项目后，用 Docker 运行 Agent Loop（自然语言交互）或 API Server：
+
+```bash
+git clone https://github.com/wanzehngyu/OpenISClaw.git
+cd OpenISClaw
+cp .env.example .env  # 编辑填入 OPENAI_API_KEY
+
+# 对话式 Agent Loop（自然语言 → 自动分析）
+make chat
+
+# HTTP API 服务
+make api-run
+# 访问 http://localhost:8000 查看所有技能并发起分析
+```
+
+详见 [项目 README](https://github.com/wanzehngyu/OpenISClaw) 。
+
 
 ## 概述
 
@@ -45,8 +91,11 @@ markdown-to-paper/
 │   ├── converter.py              # 主转换器（Word + PDF）
 │   └── markdown_parser.py        # Markdown 解析引擎
 └── references/
-    ├── default_latex_template.tex # 默认 LaTeX 模板（单栏，12pt）
-    └── template_config.yaml       # 格式配置文件
+    ├── ieee_transactions_template.tex  # 默认 PDF 模板（IEEE Transactions，双栏）
+    ├── IEEEtran.cls               # IEEEtran 文档类（随技能分发）
+    ├── IEEEtran.bst               # IEEEtran 参考文献格式
+    ├── default_latex_template.tex # 备选单栏 LaTeX 模板
+    └── template_config.yaml      # 格式配置文件
 ```
 
 ## 输入与输出
@@ -94,10 +143,17 @@ python skills/markdown-to-paper/scripts/converter.py \
   --template "./my_template.tex" \
   --output "./paper.pdf"
 
-# 生成 PDF（无模板，使用默认 IS 期刊格式）
+# 生成 PDF（默认使用 IEEE Transactions 模板）
 python skills/markdown-to-paper/scripts/converter.py \
   --input "./paper.md" \
   --output_format "pdf" \
+  --output "./paper.pdf"
+
+# 生成 PDF（使用用户自定义 LaTeX 模板）
+python skills/markdown-to-paper/scripts/converter.py \
+  --input "./paper.md" \
+  --output_format "pdf" \
+  --template "./my_template.tex" \
   --output "./paper.pdf"
 ```
 
@@ -120,7 +176,7 @@ python skills/markdown-to-paper/scripts/converter.py \
 将 Markdown 内容解析为结构化数据：
 
 1. **元数据提取**：从 Markdown 文件开头的 YAML front matter 或自然文本中提取标题、作者、摘要、关键词
-2. **章节结构解析**：识别 `# 一级标题`、`## 二级标题` 等，生成文档大纲
+2. **章节结构解析**：识别 `# 一级标题`、`## 二级标题` 等，生成文档大纲；自动识别"附录"、"致谢"章节
 3. **表格识别与解析**：识别 `| 表头 | ... |` 格式的 Markdown 表格，提取行列数据和表题
 4. **强调和特殊格式**：识别 `**粗体**`、`*斜体*`、脚注 `[^n]` 等
 5. **参考文献识别**：识别以 `## 参考文献` 或 `# References` 开头的章节
@@ -138,19 +194,23 @@ Word 路径的转换流程：
 6. **插入分页**：在摘要之后、正文第一章之前自动插入分页符
 7. **处理参考文献**：参考文献节使用正文样式（首行缩进格式）
 
-### PDF 文档生成（LaTeX + pdflatex）
+### PDF 文档生成（LaTeX + xelatex，IEEE Transactions 格式）
+
+**默认模板：IEEE Transactions（IEEEtran.cls，双栏）**
 
 PDF 路径的转换流程：
 
-1. **加载模板**：若用户提供了 `.tex` 或 `.cls` 文件，使用用户模板；否则使用默认 `default_latex_template.tex`
+1. **加载模板**：若用户提供了 `.tex` 文件，使用用户模板；否则默认使用绑定的 IEEE Transactions 模板（`references/ieee_transactions_template.tex`），已包含 `IEEEtran.cls` 和 `IEEEtran.bst`
 2. **生成 LaTeX 文档**：
-   - 写入文档类（`\documentclass{article}` 或用户的模板）
-   - 写入导言区（宏包、字体设置、页边距等）
-   - 将 Markdown 章节转写为 LaTeX 章节命令
+   - 填充标题、作者（含 `\thanks{}`）、`\markboth{}` 运行标题
+   - 填充摘要（`\begin{abstract}`）和关键词（`\begin{IEEEkeywords}`）
+   - 将 Markdown 章节转写为 LaTeX 章节命令；引言（Introduction）第一段自动加 `\IEEEPARstart` 首字母格式
    - 将 Markdown 表格转写为 `booktabs` 三线表格式
    - 将 Markdown 公式转写为 LaTeX 数学环境
-   - 将参考文献转写为 `thebibliography` 环境
-3. **编译 PDF**：执行 `pdflatex → biber/pdflatex → pdflatex`（三遍编译）确保交叉引用和文献索引正确
+   - 附录章节前自动插入 `\appendices` 命令
+   - 致谢章节使用 `\section*{Acknowledgment}`
+   - 参考文献转写为 `thebibliography` 环境
+3. **编译 PDF**：执行 `xelatex → xelatex → xelatex`（三遍编译）确保交叉引用和文献索引正确；如未安装 xelatex 自动降级为 pdflatex
 4. **输出 PDF**：将生成的 PDF 文件复制到输出路径
 
 ## 格式规范
@@ -167,17 +227,19 @@ PDF 路径的转换流程：
 - 表格：黑细边框+表头双线，表题在表格上方，五号 Times New Roman
 - 参考文献：正文格式，首行悬挂缩进
 
-### 默认 LaTeX 格式（无模板时）
+### 默认 LaTeX 格式（IEEE Transactions）
 
-- 文档类：`\documentclass[12pt,a4paper,oneside]{article}`
-- 字体：Times New Roman（`\usepackage{times}`）
-- 页面：oneside，上下 2.54cm，左右 3.18cm
-- 标题：居中加粗
-- 摘要：`\begin{abstract}...\end{abstract}` 环境
-- 表格：`\begin{table}\begin{tabular}...\end{tabular}\end{table}`，使用 `booktabs` 宏包（三线表）
-- 数学：`\(inline\)` 和 `\[displayed\]` 环境
-- 参考文献：`thebibliography` 环境，plain 样式
+- 文档类：`\documentclass[journal,twoside]{IEEEtran}`
+- 布局：双栏（two-column）
+- 字体：Computer Modern（默认 IEEEtran）
+- 摘要：位于 `\maketitle` 之后，双栏区域内，\verb|\begin.Abstract}| 环境
+- 关键词：`\begin{IEEEkeywords}...\end{IEEEkeywords}`
+- 引言首段：`\IEEEPARstart{T}{he} ...`，IEEE 规范首字母大写格式
+- 附录：自动在附录章节前插入 `\appendices` 命令
+- 致谢：`\section*{Acknowledgment}`（不编号）
+- 参考文献：`thebibliography` 环境，IEEEtran.bst 格式（随技能分发）
 
+如需使用备选的单栏格式，可在 `--template` 中指定 `references/default_latex_template.tex`。
 ## 与其他技能的联动
 
 | 上游技能 | 输出内容 | 本技能接收方式 |
@@ -191,7 +253,7 @@ PDF 路径的转换流程：
 2. **公式支持**：PDF 路径原生支持 LaTeX 数学公式；Word 路径需 Word 2016+ 支持墨迹公式渲染
 3. **图片支持**：Markdown 中的 `![alt](path)` 图片引用暂不自动嵌入，Word/PDF 中以占位符替代
 4. **参考文献格式**：默认输出为未格式化的 plain 列表，期刊特定引用格式（如 APA、MLA）需额外配置
-5. **LaTeX 模板依赖**：`pdflatex` 编译需要系统中已安装 TeX Live 或等价发行版
+5. **LaTeX 依赖**：xelatex（首选）或 pdflatex，TeX Live/macOS TeX Live/Windows TeX Live 均可
 
 ## 安装依赖
 

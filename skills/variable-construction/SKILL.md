@@ -29,6 +29,52 @@ metadata:
 
 # Variable Construction: 变量构建技能
 
+## 安装与使用
+
+本技能支持三种安装运行方式：
+
+### 方式一：有 OpenClaw（推荐）
+
+OpenClaw 用户直接通过命令安装：
+
+```bash
+openclaw skill install variable-construction
+```
+
+OpenClaw 会自动检测并安装所需 pip 依赖。
+
+### 方式二：纯 pip 安装（无 Docker / 无 OpenClaw）
+
+安装 pip 依赖后，直接运行脚本：
+
+```bash
+# 安装依赖（核心计量包）
+pip install pandas numpy scipy
+
+# 运行脚本
+python skills/variable-construction/scripts/build_variables.py --help
+```
+
+### 方式三：Docker 免安装（无需本地 Python 环境）
+
+克隆项目后，用 Docker 运行 Agent Loop（自然语言交互）或 API Server：
+
+```bash
+git clone https://github.com/wanzehngyu/OpenISClaw.git
+cd OpenISClaw
+cp .env.example .env  # 编辑填入 OPENAI_API_KEY
+
+# 对话式 Agent Loop（自然语言 → 自动分析）
+make chat
+
+# HTTP API 服务
+make api-run
+# 访问 http://localhost:8000 查看所有技能并发起分析
+```
+
+详见 [项目 README](https://github.com/wanzehngyu/OpenISClaw) 。
+
+
 ## 概述
 
 实证研究中，原始变量往往需要经过二次加工才能进入回归模型。本技能提供常用变量构建方法的自动化实现，支持在数据清洗完成后直接调用。

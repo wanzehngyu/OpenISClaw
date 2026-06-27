@@ -35,6 +35,51 @@ metadata:
 
 # Panel Regression (TWFE)
 
+## 安装与使用
+
+本技能支持三种安装运行方式：
+
+### 方式一：有 OpenClaw（推荐）
+
+OpenClaw 用户直接通过命令安装：
+
+```bash
+openclaw skill install panel-regression
+```
+
+OpenClaw 会自动检测并安装所需 pip 依赖。
+
+### 方式二：纯 pip 安装（无 Docker / 无 OpenClaw）
+
+安装 pip 依赖后，直接运行脚本：
+
+```bash
+# 安装依赖（核心计量包）
+pip install pandas numpy scipy linearmodels pyreadstat
+
+# 运行脚本
+python skills/panel-regression/scripts/panel_regression.py --help
+```
+
+### 方式三：Docker 免安装（无需本地 Python 环境）
+
+克隆项目后，用 Docker 运行 Agent Loop（自然语言交互）或 API Server：
+
+```bash
+git clone https://github.com/wanzehngyu/OpenISClaw.git
+cd OpenISClaw
+cp .env.example .env  # 编辑填入 OPENAI_API_KEY
+
+# 对话式 Agent Loop（自然语言 → 自动分析）
+make chat
+
+# HTTP API 服务
+make api-run
+# 访问 http://localhost:8000 查看所有技能并发起分析
+```
+
+详见 [项目 README](https://github.com/wanzehngyu/OpenISClaw) 。
+
 ## 概述
 
 执行双向固定效应（Two-Way Fixed Effects, TWFE）面板回归，默认输出企业层面聚类稳健标准误：
@@ -125,13 +170,3 @@ TWFE 模型在异质性处理效应（Hetero Treatment Effects）下可能产生
 
 - `references/panel-regression-guide.md` — 完整操作手册（含双向聚类、稳健标准误推导）
 - `references/diagnostics-standards.md` — 计量诊断标准与临界值
-
-## 依赖安装确认
-
-```bash
-python -c "from linearmodels.panel import PanelOLS; print('linearmodels OK')"
-python -c "import pandas; print('pandas OK')"
-python -c "import pyreadstat; print('pyreadstat OK')"
-```
-
-若缺失，智能体应提示用户运行 `pip install linearmodels pandas pyreadstat`。

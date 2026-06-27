@@ -35,6 +35,51 @@ metadata:
 
 # IV-Estimator: 工具变量二阶段回归
 
+## 安装与使用
+
+本技能支持三种安装运行方式：
+
+### 方式一：有 OpenClaw（推荐）
+
+OpenClaw 用户直接通过命令安装：
+
+```bash
+openclaw skill install iv-estimator
+```
+
+OpenClaw 会自动检测并安装所需 pip 依赖。
+
+### 方式二：纯 pip 安装（无 Docker / 无 OpenClaw）
+
+安装 pip 依赖后，直接运行脚本：
+
+```bash
+# 安装依赖（核心计量包）
+pip install pandas numpy scipy linearmodels pyreadstat
+
+# 运行脚本
+python skills/iv-estimator/scripts/iv_regression.py --help
+```
+
+### 方式三：Docker 免安装（无需本地 Python 环境）
+
+克隆项目后，用 Docker 运行 Agent Loop（自然语言交互）或 API Server：
+
+```bash
+git clone https://github.com/wanzehngyu/OpenISClaw.git
+cd OpenISClaw
+cp .env.example .env  # 编辑填入 OPENAI_API_KEY
+
+# 对话式 Agent Loop（自然语言 → 自动分析）
+make chat
+
+# HTTP API 服务
+make api-run
+# 访问 http://localhost:8000 查看所有技能并发起分析
+```
+
+详见 [项目 README](https://github.com/wanzehngyu/OpenISClaw) 。
+
 ## 概述
 
 当解释变量与误差项相关（即存在内生性）时，OLS 估计量有偏且不一致。工具变量（IV）估计通过寻找与内生解释变量相关但与误差项无关的外部变量 $Z$，实现对内生变量的"清洗"，从而获得一致性估计。
@@ -199,11 +244,3 @@ python {baseDir}/scripts/iv_regression.py \
 
 - `references/iv-diagnostics.md` — 完整诊断逻辑与 Stock-Yogo 临界值表
 - `references/weak-iv-standards.md` — 弱工具变量检验的学术标准演进
-
-## 依赖安装确认
-
-```bash
-python -c "from linearmodels.iv import IV2SLS; print('linearmodels IV OK')"
-python -c "import pandas; print('pandas OK')"
-python -c "import pyreadstat; print('pyreadstat OK')"
-```

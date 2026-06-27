@@ -35,6 +35,51 @@ metadata:
 
 # Data Cleaning: 数据清洗与预处理技能
 
+## 安装与使用
+
+本技能支持三种安装运行方式：
+
+### 方式一：有 OpenClaw（推荐）
+
+OpenClaw 用户直接通过命令安装：
+
+```bash
+openclaw skill install data-cleaning
+```
+
+OpenClaw 会自动检测并安装所需 pip 依赖。
+
+### 方式二：纯 pip 安装（无 Docker / 无 OpenClaw）
+
+安装 pip 依赖后，直接运行脚本：
+
+```bash
+# 安装依赖（核心计量包）
+pip install pandas numpy scipy pyreadstat
+
+# 运行脚本
+python skills/data-cleaning/scripts/data_cleaning.py --help
+```
+
+### 方式三：Docker 免安装（无需本地 Python 环境）
+
+克隆项目后，用 Docker 运行 Agent Loop（自然语言交互）或 API Server：
+
+```bash
+git clone https://github.com/wanzehngyu/OpenISClaw.git
+cd OpenISClaw
+cp .env.example .env  # 编辑填入 OPENAI_API_KEY
+
+# 对话式 Agent Loop（自然语言 → 自动分析）
+make chat
+
+# HTTP API 服务
+make api-run
+# 访问 http://localhost:8000 查看所有技能并发起分析
+```
+
+详见 [项目 README](https://github.com/wanzehngyu/OpenISClaw) 。
+
 ## 概述
 
 实证研究的数据质量直接决定回归结果的可靠性。本技能提供从原始数据到"可分析格式"的全套清洗流程，覆盖缺失值处理、异常值检测、去重与一致性检验四大模块。
@@ -177,11 +222,3 @@ CSV/Parquet 格式，直接可用于回归分析。
 
 - `references/data-quality-standards.md` — 数据质量标准与计量要求
 - `references/missing-data-handling.md` — 缺失值处理学术规范
-
-## 依赖安装确认
-
-```bash
-python -c "import pandas; print('pandas OK')"
-python -c "import pyreadstat; print('pyreadstat OK')"
-python -c "import numpy; print('numpy OK')"
-```

@@ -1,0 +1,59 @@
+% IEEE Transactions LaTeX Template
+% Based on IEEEtran.cls (journal, twoside mode)
+% Place content sections and metadata are injected by converter.py
+%
+% Compile with: xelatex (or pdflatex with xelatex engine)
+% Required files: IEEEtran.cls, IEEEtran.bst (included in this directory)
+
+\documentclass[journal,twoside]{IEEEtran}
+
+% ── Basic Packages ────────────────────────────────────────────────────────
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{algorithmic}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\usepackage{url}
+\usepackage{hyperref}
+\hypersetup{
+  colorlinks=true,
+  citecolor=blue,
+  linkcolor=blue,
+  urlcolor=blue
+}
+
+% ── Chinese language support (for author affiliations in Chinese) ─────────
+% If compiling with xelatex and you have Chinese fonts:
+\providecommand{\PARstart}[2]{\IEEEPARstart{#1}{#2}}
+
+% ── Template placeholders (filled by converter.py) ─────────────────────────
+% __TITLE__      : Paper title
+% __AUTHORS__    : Author block with \thanks{} for affiliations
+% __MARKBOTH__   : \markboth{journal info}{author short title}
+% __ABSTRACT__   : Abstract text
+% __KEYWORDS__   : IEEE keywords
+% __BODY__       : All paper sections (LaTeX markup)
+% __BIBLIOGRAPHY__: References section
+
+\begin{document}
+
+% ── Title & Author Block ────────────────────────────────────────────────
+__AUTHORS__
+
+% ── Abstract & Keywords ──────────────────────────────────────────────────
+\begin{abstract}
+__ABSTRACT__
+\end{abstract}
+
+\begin{IEEEkeywords}
+__KEYWORDS__
+\end{IEEEkeywords}
+
+% ── Paper Body ───────────────────────────────────────────────────────────
+__BODY__
+
+% ── Bibliography ────────────────────────────────────────────────────────
+__BIBLIOGRAPHY__
+
+\end{document}
