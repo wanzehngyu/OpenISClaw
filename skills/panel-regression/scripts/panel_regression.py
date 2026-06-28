@@ -110,7 +110,11 @@ def run_panel_regression(args):
     df_clean = check_missing(df, args.y, args.x)
 
     # Set MultiIndex for linearmodels
-    df_clean[args.time] = pd.Categorical(df_clean[args.time])
+    # Only convert to Categorical for string/object time IDs; numeric pass through as-is
+    time_dtype = df_clean[args.time].dtype
+    if time_dtype == 'object' or str(time_dtype).startswith('str') or str(time_dtype).startswith('category'):
+        df_clean[args.time] = pd.Categorical(df_clean[args.time])
+    # else: leave numeric as-is (linearmodels accepts numeric time indices)
     df_panel = df_clean.set_index([args.entity, args.time])
 
     # Build dependent and exogenous
@@ -136,7 +140,7 @@ def run_panel_regression(args):
             exog=X,
             entity_effects=True,
             time_effects=True,
-            drop_time_effects=True
+
         )
 
         cluster_type = "clustered" if args.cluster == "entity" else "clustered"
@@ -168,7 +172,7 @@ def run_panel_regression(args):
     print(f"\n{'='*60}")
     print("### [双向固定效应面板回归结果]")
     print(f"{'='*60}\n")
-    print(results.summary.to_string())
+    print(results.summary)
 
     # Save pickle
     with open(args.output_pickle, "wb") as f:
@@ -181,7 +185,7 @@ def run_panel_regression(args):
         "n_entities": int(n_entities),
         "n_times": int(n_times),
         "r_squared_within": float(results.rsquared_within),
-        "f_statistic": float(results.f_statistic.value),
+        "f_statistic": float(results.f_statistic.stat),
         "f_pvalue": float(results.f_statistic.pval),
         "max_vif": float(max_vif),
         "cluster_type": args.cluster,

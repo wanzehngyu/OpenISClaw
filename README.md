@@ -204,6 +204,57 @@ OPENAI_BASE_URL=...        # 可选，自定义 API 地址
 
 ---
 
+### 方式四：本地 Web 工作台（浏览器界面）
+
+> 有本地 OpenClaw 环境时，推荐使用图形化工作台，无需命令行。
+
+**特点：**
+- TensorBoard 风格本地 Web 界面，因果推断与计量分析全覆盖
+- 支持 6 大技能：面板回归、工具变量、DID、断点回归、PSM、生存分析
+- 自动从 skills 调用脚本，结果直接在浏览器中显示
+- 路径完全隔离：**数据和输出永远写入用户项目目录，skills 目录保持纯净**
+
+**启动：**
+```bash
+# 切换到你的项目目录（数据和结果将保存在这里）
+cd ~/myproject
+
+# 启动 Web 工作台
+python /path/to/is-econometrics-skills/web-ui/server.py --port 8000
+
+# 打开浏览器访问
+open http://localhost:8000
+```
+
+**路径自动检测逻辑：**
+
+| 启动方式 | 项目根（project_root） | 数据目录 | 输出目录 | skills 目录 |
+|---------|----------------------|---------|---------|------------|
+| `cd ~/myproject && python .../server.py` | `~/myproject` | `~/myproject/user_data` | `~/myproject/user_output` | 自动搜索 `~/myproject/../clawd/is-econometrics-skills/skills` |
+| `USER_PROJECT_ROOT=~/myproject python .../server.py` | `~/myproject` | `~/myproject/user_data` | `~/myproject/user_output` | 同上，可用 `OPENCLAW_SKILLS_BASE` 覆盖 |
+| `python .../server.py`（默认 cwd） | cwd | `cwd/user_data` | `cwd/user_output` | 自动搜索父目录链 |
+
+> **核心原则：** skills 脚本目录（`is-econometrics-skills/skills`）始终**只读调用**，数据和结果写入用户项目目录。
+
+**数据准备：**
+```bash
+# 将数据放入项目目录的 user_data/ 下
+~/myproject/user_data/
+├── panel_data.csv       # 面板数据
+├── fifa_world_cup_2026_player_performance.csv  # 示例数据
+└── player_data.csv
+```
+
+**首次使用步骤：**
+1. 将数据文件（.csv / .dta / .xlsx）放入 `user_data/`
+2. 启动服务器：`python .../server.py --port 8000`
+3. 浏览器打开 `http://localhost:8000`
+4. 选择数据集 → 选择变量 → 点击运行 → 查看结果
+
+**依赖：** `fastapi` `uvicorn`（已包含在 skills 依赖中）
+
+---
+
 ## 🚀 快速开始
 
 ### 1. 准备数据
@@ -364,6 +415,11 @@ is-econometrics-skills/
 ├── LICENSE
 ├── OpenClaw_README_banner.png     # README 顶部 Banner 图
 ├── OpenClaw_repo_icon_card.png    # 仓库图标卡片
+├── web-ui/                        # 本地 Web 工作台（浏览器界面）
+│   ├── server.py                  # FastAPI 主服务器（含路径自动检测）
+│   ├── DESIGN.md                  # 界面设计文档
+│   ├── static/                    # 前端资源（CSS/JS）
+│   └── templates/                 # HTML 模板
 ├── skills/
 │   ├── is-theory-matcher/    # IS理论推荐与研究设计生成
 │   │   ├── SKILL.md

@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenISClaw — 因果推断工作台</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Noto+Sans+SC:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/lib/core.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/lib/languages/python.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/styles/github-dark.min.css">
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════ TOPBAR ═══════════════════════════════════════ -->
+<header class="topbar">
+  <div class="topbar-left">
+    <div class="logo">
+      <span class="logo-icon">📊</span>
+      <span class="logo-text">OpenISClaw</span>
+    </div>
+    <span class="project-name">因果推断工作台</span>
+  </div>
+  <div class="topbar-center">
+    <div class="status-pill" id="status-api">
+      <span class="status-dot" id="api-dot"></span>
+      <span id="api-status-text">检查中...</span>
+    </div>
+    <div class="status-pill" id="status-data">
+      <span class="status-dot" id="data-dot"></span>
+      <span id="data-status-text">数据未加载</span>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <button class="btn-icon" id="btn-settings" title="设置">⚙️</button>
+  </div>
+</header>
+
+<!-- ═══════════════════════════════════════ MAIN ════════════════════════════════════════ -->
+<div class="main-wrapper">
+
+  <!-- ─── SIDEBAR ─────────────────────────────────────────────────────── -->
+  <nav class="sidebar" id="sidebar">
+    <div class="nav-section">
+      <div class="nav-section-label">工作区</div>
+      <a class="nav-item active" data-page="dashboard" href="#">
+        <span class="nav-icon">📈</span>
+        <span class="nav-label">仪表盘</span>
+      </a>
+      <a class="nav-item" data-page="data" href="#">
+        <span class="nav-icon">📁</span>
+        <span class="nav-label">数据</span>
+      </a>
+      <a class="nav-item" data-page="chat" href="#">
+        <span class="nav-icon">💬</span>
+        <span class="nav-label">对话</span>
+      </a>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-label">计量分析</div>
+      <a class="nav-item" data-page="panel-regression" href="#">
+        <span class="nav-icon">📐</span>
+        <span class="nav-label">面板回归</span>
+      </a>
+      <a class="nav-item" data-page="iv-estimator" href="#">
+        <span class="nav-icon">🎯</span>
+        <span class="nav-label">IV 估计</span>
+      </a>
+      <a class="nav-item" data-page="staggered-did" href="#">
+        <span class="nav-icon">⏱️</span>
+        <span class="nav-label">多时点 DID</span>
+      </a>
+      <a class="nav-item" data-page="psm" href="#">
+        <span class="nav-icon">🔀</span>
+        <span class="nav-label">倾向得分匹配</span>
+      </a>
+      <a class="nav-item" data-page="rdd" href="#">
+        <span class="nav-icon">📍</span>
+        <span class="nav-label">断点回归</span>
+      </a>
+      <a class="nav-item" data-page="survival" href="#">
+        <span class="nav-icon">📉</span>
+        <span class="nav-label">生存分析</span>
+      </a>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-label">输出</div>
+      <a class="nav-item" data-page="results" href="#">
+        <span class="nav-icon">📋</span>
+        <span class="nav-label">结果</span>
+      </a>
+      <a class="nav-item" data-page="paper-writer" href="#">
+        <span class="nav-icon">📝</span>
+        <span class="nav-label">论文写作</span>
+      </a>
+      <a class="nav-item" data-page="skills" href="#">
+        <span class="nav-icon">🧠</span>
+        <span class="nav-label">技能库</span>
+      </a>
+    </div>
+  </nav>
+
+  <!-- ─── CONTENT ──────────────────────────────────────────────────────── -->
+  <main class="content" id="main-content">
+
+    <!-- ══════ DASHBOARD ══════ -->
+    <div class="page active" id="page-dashboard">
+      <div class="page-header">
+        <h1>📈 仪表盘</h1>
+        <p class="page-desc">概览 · 快速入口 · 系统状态</p>
+      </div>
+
+      <div class="dashboard-grid">
+        <!-- Quick Actions -->
+        <div class="dash-card quick-actions">
+          <h3>🚀 快速开始</h3>
+          <div class="quick-btn-group">
+            <button class="btn-primary" onclick="navTo('data')">
+              <span>📁</span> 上传数据
+            </button>
+            <button class="btn-secondary" onclick="navTo('chat')">
+              <span>💬</span> 自然语言分析
+            </button>
+            <button class="btn-secondary" onclick="navTo('panel-regression')">
+              <span>📐</span> 面板回归
+            </button>
+          </div>
+        </div>
+
+        <!-- Datasets -->
+        <div class="dash-card datasets-overview">
+          <div class="card-header">
+            <h3>📊 数据集</h3>
+            <button class="btn-sm" onclick="navTo('data')">查看全部</button>
+          </div>
+          <div class="dataset-list" id="dash-dataset-list">
+            <div class="empty-state small">
+              <span>暂无数据集</span>
+              <button class="btn-sm" onclick="navTo('data')">上传</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Results -->
+        <div class="dash-card recent-results">
+          <div class="card-header">
+            <h3>🕐 最近结果</h3>
+            <button class="btn-sm" onclick="navTo('results')">查看全部</button>
+          </div>
+          <div class="result-list" id="dash-result-list">
+            <div class="empty-state small">
+              <span>还没有分析结果</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- System Health -->
+        <div class="dash-card system-health">
+          <h3>🔧 系统状态</h3>
+          <div class="health-items">
+            <div class="health-item">
+              <span class="health-label">API 连接</span>
+              <span class="health-value" id="health-api">检查中...</span>
+            </div>
+            <div class="health-item">
+              <span class="health-label">模型</span>
+              <span class="health-value" id="health-model">—</span>
+            </div>
+            <div class="health-item">
+              <span class="health-label">Skills 目录</span>
+              <span class="health-value" id="health-skills">—</span>
+            </div>
+            <div class="health-item">
+              <span class="health-label">缺失依赖</span>
+              <span class="health-value" id="health-deps">—</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Skills Overview -->
+        <div class="dash-card skills-overview">
+          <div class="card-header">
+            <h3>🧠 技能矩阵</h3>
+            <button class="btn-sm" onclick="navTo('skills')">技能库 →</button>
+          </div>
+          <div class="skills-tags" id="dash-skills-tags"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════ DATA ══════ -->
+    <div class="page" id="page-data">
+      <div class="page-header">
+        <h1>📁 数据管理</h1>
+        <p class="page-desc">上传 · 预览 · 变量检查 · 数据质量</p>
+      </div>
+
+      <!-- Upload Zone -->
+      <div class="upload-zone" id="upload-zone">
+        <div class="upload-content">
+          <span class="upload-icon">📤</span>
+          <p>拖拽文件到此处，或 <label class="link" for="file-input">点击上传</label></p>
+          <p class="upload-hint">支持 .csv .dta .xlsx .xls</p>
+          <input type="file" id="file-input" accept=".csv,.dta,.xlsx,.xls" multiple style="display:none">
+        </div>
+      </div>
+      <div class="upload-progress" id="upload-progress" style="display:none">
+        <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+        <span id="progress-text">上传中...</span>
+      </div>
+
+      <!-- Dataset List -->
+      <div class="section">
+        <h2>可用数据集</h2>
+        <div class="dataset-grid" id="dataset-grid"></div>
+      </div>
+
+      <!-- Data Preview Panel -->
+      <div class="section" id="preview-section" style="display:none">
+        <div class="section-header">
+          <h2 id="preview-title">数据预览</h2>
+          <div class="preview-actions">
+            <button class="btn-sm" onclick="showDataStats()">📊 统计摘要</button>
+            <button class="btn-sm" onclick="closePreview()">✕ 关闭</button>
+          </div>
+        </div>
+        <div class="preview-info" id="preview-info"></div>
+        <div class="table-wrapper">
+          <table class="data-table" id="preview-table"></table>
+        </div>
+        <!-- Column Quality Bars -->
+        <div class="column-quality" id="column-quality"></div>
+      </div>
+    </div>
+
+    <!-- ══════ CHAT ══════ -->
+    <div class="page" id="page-chat">
+      <div class="page-header">
+        <h1>💬 自然语言分析</h1>
+        <p class="page-desc">用中文描述你的分析需求，AI 自动选择技能并执行</p>
+      </div>
+
+      <div class="chat-layout">
+        <div class="chat-messages" id="chat-messages">
+          <div class="chat-welcome">
+            <div class="welcome-icon">🤖</div>
+            <h2>欢迎使用 OpenISClaw 分析助手</h2>
+            <p>上传数据后，用自然语言描述你的分析需求，例如：</p>
+            <div class="example-prompts">
+              <button class="example-prompt" onclick="fillPrompt('对面板数据做双向固定效应回归，被解释变量是ROA，解释变量是企业规模、资产负债率和年龄，聚类到企业层面')">
+                对面板数据做双向固定效应回归
+              </button>
+              <button class="example-prompt" onclick="fillPrompt('检验IT投资对企业绩效的内生性，使用政府信息化采购作为工具变量')">
+                检验内生性，使用工具变量
+              </button>
+              <button class="example-prompt" onclick="fillPrompt('分析2018-2022年企业数字化转型对绩效的多时点DID效应，生成平行趋势图')">
+                多时点 DID 分析
+              </button>
+              <button class="example-prompt" onclick="fillPrompt('将实证结果整合为完整学术论文，使用IEEE双栏模板')">
+                生成学术论文
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="chat-input-area">
+          <div class="chat-data-selector">
+            <label>数据：</label>
+            <select id="chat-data-select">
+              <option value="">未选择（可选）</option>
+            </select>
+          </div>
+          <div class="chat-input-row">
+            <textarea id="chat-input" placeholder="用自然语言描述你的分析需求..." rows="3"></textarea>
+            <button class="btn-primary chat-send-btn" id="chat-send-btn" onclick="sendChat()">▶</button>
+          </div>
+          <div class="chat-options">
+            <label class="checkbox-label">
+              <input type="checkbox" id="chat-auto-execute" checked>
+              自动执行推荐脚本
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════ PANEL REGRESSION ══════ -->
+    <div class="page" id="page-panel-regression">
+      <div class="page-header">
+        <h1>📐 面板回归</h1>
+        <p class="page-desc">双向固定效应（TWFE）回归 · 聚类稳健标准误</p>
+      </div>
+      <div class="skill-layout">
+        <div class="skill-form">
+          <div class="form-group">
+            <label>数据集</label>
+            <select id="pr-data"><option value="">— 选择数据 —</option></select>
+          </div>
+          <div class="form-group">
+            <label>因变量 (Y)</label>
+            <select id="pr-y"><option value="">— 选择变量 —</option></select>
+          </div>
+          <div class="form-group">
+            <label>解释变量 (X)</label>
+            <div class="checkbox-grid" id="pr-x-list"></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>个体 ID 列</label>
+              <select id="pr-entity"><option value="">— 选择 —</option></select>
+            </div>
+            <div class="form-group">
+              <label>时间列</label>
+              <select id="pr-time"><option value="">— 选择 —</option></select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>聚类层级</label>
+            <div class="radio-group">
+              <label class="radio-label"><input type="radio" name="pr-cluster" value="entity" checked> 个体层面</label>
+              <label class="radio-label"><input type="radio" name="pr-cluster" value="time"> 时间层面</label>
+              <label class="radio-label"><input type="radio" name="pr-cluster" value="double"> 双向聚类</label>
+            </div>
+          </div>
+          <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:8px">
+            注：脚本默认使用双向固定效应（个体FE + 时间FE），聚类标准误默认聚类到个体层面。
+          </p>
+          <button class="btn-primary" id="btn-run-pr" onclick="const b=this;b.textContent='⏳ 执行中...';b.disabled=true;runPanelRegression().finally(()=>{b.textContent='▶ 运行回归';b.disabled=false;})">▶ 运行回归</button>
+        </div>
+        <div class="skill-result" id="pr-result">
+          <div class="empty-state" id="pr-result-inner">
+            <span style="font-size:0.8rem">① 选择数据和变量</span><br>
+            <span style="font-size:0.8rem">② 点击下方「▶ 运行回归」</span><br>
+            <span style="font-size:0.8rem">③ 结果将显示在这里</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════ IV ESTIMATOR ══════ -->
+    <div class="page" id="page-iv-estimator">
+      <div class="page-header">
+        <h1>🎯 IV 工具变量估计</h1>
+        <p class="page-desc">2SLS 回归 · 内生性检验 · 弱工具变量检验</p>
+      </div>
+      <div class="skill-layout">
+        <div class="skill-form">
+          <div class="form-group">
+            <label>数据集</label>
+            <select id="iv-data" onchange="loadIVColumns()"><option value="">— 选择数据 —</option></select>
+          </div>
+          <div class="form-group">
+            <label>因变量 (Y)</label>
+            <select id="iv-y"><option value="">— 选择 —</option></select>
+          </div>
+          <div class="form-group">
+            <label>外生解释变量</label>
+            <div class="checkbox-grid" id="iv-exog-list"></div>
+          </div>
+          <div class="form-group">
+            <label>内生变量</label>
+            <select id="iv-endog"><option value="">— 选择 —</option></select>
+          </div>
+          <div class="form-group">
+            <label>工具变量</label>
+            <div class="checkbox-grid" id="iv-iv-list"></div>
+          </div>
+          <button class="btn-primary" onclick="runIV()">▶ 运行 IV 估计</button>
+        </div>
+        <div class="skill-result" id="iv-result">
+          <div class="diagnostics-grid" id="iv-diagnostics"></div>
+          <div class="empty-state">诊断结果将显示在这里</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════ STAGGERED DID ══════ -->
+    <div class="page" id="page-staggered-did">
+      <div class="page-header">
+        <h1>⏱️ 多时点双重差分 (Staggered DID)</h1>
+        <p class="page-desc">Callaway-Sant'Anna 估计量 · 事件研究法 · 平行趋势检验</p>
+      </div>
+      <div class="skill-layout">
+        <div class="skill-form">
+          <div class="form-group">
+            <label>数据集</label>
+            <select id="did-data" onchange="loadDIDColumns()"><option value="">— 选择数据 —</option></select>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>因变量 (Y)</label>
+              <select id="did-y"><option value="">— 选择 —</option></select>
+            </div>
+            <div class="form-group">
+              <label>处理时间变量</label>
+              <select id="did-g"><option value="">— 选择 —</option></select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>个体 ID</label>
+              <select id="did-id"><option value="">— 选择 —</option></select>
+            </div>
+            <div class="form-group">
+              <label>时间变量</label>
+              <select id="did-t"><option value="">— 选择 —</option></select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>控制组</label>
+            <div class="radio-group">
+              <label class="radio-label"><input type="radio" name="did-cg" value="notyettreated" checked> 尚未处理组</label>
+              <label class="radio-label"><input type="radio" name="did-cg" value="nevertreated"> 从未处理组</label>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>估计方法</label>
+            <div class="radio-group">
+              <label class="radio-label"><input type="radio" name="did-est" value="dr" checked> Doubly Robust (DR)</label>
+              <label class="radio-label"><input type="radio" name="did-est" value="ipw"> 逆概率加权 (IPW)</label>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>协变量（可选，逗号分隔）</label>
+            <input type="text" id="did-cov" placeholder="co_size_ln, lev, age">
+          </div>
+          <button class="btn-primary" onclick="runDID()">▶ 运行 DID 分析</button>
+        </div>
+        <div class="skill-result" id="did-result">
+          <div class="empty-state">平行趋势图和 ATT 估计结果将显示在这里</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════ PSM ══════ -->
+    <div class="page" id="page-psm">
+      <div class="page-header">
+        <h1>🔀 倾向得分匹配 (PSM)</h1>
+        <p class="page-desc">反事实估计 · 倾向得分 · 匹配估计量</p>
+      </div>
+      <div class="skill-layout">
+        <div class="skill-form">
+          <div class="form-group">
+            <label>数据集</label>
+            <select id="psm-data" onchange="loadPSMColumns()"><option value="">— 选择数据 —</option></select>
+          </div>
+          <div class="form-group">
+            <label>结果变量 (Y)</label>
+            <select id="psm-y"><option value="">— 选择 —</option></select>
+          </div>
+          <div class="form-group">
+            <label>处理变量 (T)</label>
+            <select id="psm-t"><option value="">— 选择 —</option></select>
+          </div>
+          <div class="form-group">
+            <label>协变量（匹配变量）</label>
+            <div class="checkbox-grid" id="psm-cov-list"></div>
+          </div>
+          <div class="form-group">
+            <label>匹配方法</label>
+            <select id="psm-method">
+              <option value="nearest">最近邻匹配 (1:1)</option>
+              <option value="radius">半径匹配</option>
+              <option value="kernel">核匹配</option>
+            </select>
+          </div>
+          <button class="btn-primary" onclick="runPSM()">▶ 运行 PSM</button>
+        </div>
+        <div class="skill-result" id="psm-result">
+          <div class="empty-state">匹配结果将显示在这里</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════ RDD ══════ -->
+    <div class="page" id="page-rdd">
+      <div class="page-header">
+        <h1>📍 断点回归 (RDD)</h1>
+        <p class="page-desc">模糊断点 · 清晰断点 · 局部处理效应</p>
+      </div>
+      <div class="skill-layout">
+        <div class="skill-form">
+          <div class="form-group">
+            <label>数据集</label>
+            <select id="rdd-data" onchange="loadRDDColumns()"><option value="">— 选择数据 —</option></select>
+          </div>
+          <div class="form-group">
+            <label>结果变量 (Y)</label>
+            <select id="rdd-y"><option value="">— 选择 —</option></select>
+          </div>
+          <div class="form-group">
+            <label>分配变量 (Running Variable)</label>
+            <select id="rdd-x"><option value="">— 选择 —</option></select>
+          </div>
+          <div class="form-group">
+            <label>断点阈值</label>
+            <input type="number" id="rdd-cutoff" value="0" step="any">
+          </div>
+          <div class="form-group">
+            <label>带宽 (可选)</label>
+            <input type="text" id="rdd-bandwidth" placeholder="自动选择">
+          </div>
+          <div class="form-group">
+            <label>断点类型</label>
+            <div class="radio-group">
+              <label class="radio-label"><input type="radio" name="rdd-type" value="sharp" checked> 清晰断点</label>
+              <label class="radio-label"><input type="radio" name="rdd-type" value="fuzzy"> 模糊断点</label>
+            </div>
+          </div>
+          <button class="btn-primary" onclick="runRDD()">▶ 运行 RDD</button>
+        </div>
+        <div class="skill-result" id="rdd-result">
+          <div class="empty-state">RDD 结果将显示在这里</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════ SURVIVAL ══════ -->
+    <div class="page" id="page-survival">
+      <div class="page-header">
+        <h1>📉 生存分析</h1>
+        <p class="page-desc">Cox 比例风险模型 · Kaplan-Meier 曲线</p>
+      </div>
+      <div class="skill-layout">
+        <div class="skill-form">
+          <div class="form-group">
+            <label>数据集</label>
+            <select id="surv-data" onchange="loadSurvColumns()"><option value="">— 选择数据 —</option></select>
+          </div>
+          <div class="form-group">
+            <label>时间变量</label>
+            <select id="surv-time"><option value="">— 选择 —</option></select>
+          </div>
+          <div class="form-group">
+            <label>事件变量 (0=截尾, 1=事件发生)</label>
+            <select id="surv-event"><option value="">— 选择 —</option></select>
+          </div>
+          <div class="form-group">
+            <label>协变量</label>
+            <div class="checkbox-grid" id="surv-cov-list"></div>
+          </div>
+          <button class="btn-primary" onclick="runSurvival()">▶ 运行生存分析</button>
+        </div>
+        <div class="skill-result" id="surv-result">
+          <div class="empty-state">生存分析结果将显示在这里</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════ RESULTS ══════ -->
+    <div class="page" id="page-results">
+      <div class="page-header">
+        <h1>📋 分析结果</h1>
+        <p class="page-desc">表格 · 图表 · 日志 · 诊断报告</p>
+      </div>
+      <div class="results-tabs">
+        <button class="tab-btn active" data-tab="tables" onclick="showResultTab('tables')">📊 表格</button>
+        <button class="tab-btn" data-tab="plots" onclick="showResultTab('plots')">📈 图表</button>
+        <button class="tab-btn" data-tab="logs" onclick="showResultTab('logs')">📝 日志</button>
+        <button class="tab-btn" data-tab="diagnostics" onclick="showResultTab('diagnostics')">🔍 诊断</button>
+      </div>
+      <div class="results-content">
+        <div class="tab-panel active" id="tab-tables">
+          <div class="result-list-grid" id="result-tables"></div>
+        </div>
+        <div class="tab-panel" id="tab-plots">
+          <div class="result-list-grid" id="result-plots"></div>
+        </div>
+        <div class="tab-panel" id="tab-logs">
+          <div class="terminal-output" id="terminal-logs"></div>
+        </div>
+        <div class="tab-panel" id="tab-diagnostics">
+          <div id="diagnostics-content"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════ PAPER WRITER ══════ -->
+    <div class="page" id="page-paper-writer">
+      <div class="page-header">
+        <h1>📝 实证论文写作</h1>
+        <p class="page-desc">将实证结果整合为完整学术论文 · IEEE / 单栏模板</p>
+      </div>
+      <div class="paper-wizard">
+        <div class="wizard-steps">
+          <div class="wizard-step active" data-step="1">
+            <span class="step-num">1</span>
+            <span class="step-label">研究问题</span>
+          </div>
+          <div class="wizard-step" data-step="2">
+            <span class="step-num">2</span>
+            <span class="step-label">理论框架</span>
+          </div>
+          <div class="wizard-step" data-step="3">
+            <span class="step-num">3</span>
+            <span class="step-label">研究假设</span>
+          </div>
+          <div class="wizard-step" data-step="4">
+            <span class="step-num">4</span>
+            <span class="step-label">方法选择</span>
+          </div>
+          <div class="wizard-step" data-step="5">
+            <span class="step-num">5</span>
+            <span class="step-label">结果整合</span>
+          </div>
+          <div class="wizard-step" data-step="6">
+            <span class="step-num">6</span>
+            <span class="step-label">生成论文</span>
+          </div>
+        </div>
+
+        <!-- Step 1: Research Question -->
+        <div class="wizard-panel active" data-panel="1">
+          <h3>🔬 研究问题</h3>
+          <div class="form-group">
+            <label>研究问题（中文）</label>
+            <textarea id="pw-rq" rows="3" placeholder="例如：数字化转型对企业绩效的影响"></textarea>
+          </div>
+          <div class="form-group">
+            <label>数据描述</label>
+            <textarea id="pw-data-desc" rows="2" placeholder="例如：A股上市公司2010-2023年面板数据，涵盖500家企业"></textarea>
+          </div>
+          <button class="btn-primary" onclick="wizardNext(1)">下一步 →</button>
+        </div>
+
+        <!-- Step 2: Theory -->
+        <div class="wizard-panel" data-panel="2">
+          <h3>📚 理论框架</h3>
+          <div class="form-group">
+            <label>选择理论（或让 AI 推荐）</label>
+            <div class="theory-chips" id="theory-chips">
+              <button class="theory-chip" data-theory="dynamic_capabilities">动态能力理论</button>
+              <button class="theory-chip" data-theory="resource_view">资源基础观</button>
+              <button class="theory-chip" data-theory="tech_adoption">技术采纳理论</button>
+              <button class="theory-chip" data-theory="signaling">信号理论</button>
+              <button class="theory-chip" data-theory="agency">代理理论</button>
+              <button class="theory-chip" data-theory="stakeholder">利益相关者理论</button>
+            </div>
+            <input type="hidden" id="pw-theory" value="">
+          </div>
+          <button class="btn-secondary" onclick="wizardPrev(2)">← 上一步</button>
+          <button class="btn-primary" onclick="wizardNext(2)">下一步 →</button>
+        </div>
+
+        <!-- Step 3: Hypotheses -->
+        <div class="wizard-panel" data-panel="3">
+          <h3>💡 研究假设</h3>
+          <div class="form-group">
+            <label>研究假设（分号分隔）</label>
+            <textarea id="pw-hypotheses" rows="4" placeholder="H1: 数字化转型对企业绩效有显著正向影响;&#10;H2: 组织冗余正向调节上述关系;"></textarea>
+          </div>
+          <div class="form-group">
+            <label>变量列表（逗号分隔）</label>
+            <input type="text" id="pw-variables" placeholder="roa, digital_transformation, firm_size, leverage, age">
+          </div>
+          <button class="btn-secondary" onclick="wizardPrev(3)">← 上一步</button>
+          <button class="btn-primary" onclick="wizardNext(3)">下一步 →</button>
+        </div>
+
+        <!-- Step 4: Method -->
+        <div class="wizard-panel" data-panel="4">
+          <h3>📐 方法选择</h3>
+          <div class="form-group">
+            <label>实证方法</label>
+            <div class="checkbox-grid">
+              <label class="checkbox-label"><input type="checkbox" value="panel-regression" checked> 面板回归 (TWFE)</label>
+              <label class="checkbox-label"><input type="checkbox" value="iv-estimator"> 工具变量 (IV)</label>
+              <label class="checkbox-label"><input type="checkbox" value="staggered-did"> 多时点 DID</label>
+              <label class="checkbox-label"><input type="checkbox" value="psm"> 倾向得分匹配</label>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>实证结果 pickle 文件路径（可选）</label>
+            <input type="text" id="pw-pickle" placeholder="./user_output/panel_results.pkl">
+          </div>
+          <button class="btn-secondary" onclick="wizardPrev(4)">← 上一步</button>
+          <button class="btn-primary" onclick="wizardNext(4)">下一步 →</button>
+        </div>
+
+        <!-- Step 5: Integration -->
+        <div class="wizard-panel" data-panel="5">
+          <h3>🔗 结果整合</h3>
+          <p>选择已生成的结果文件：</p>
+          <div class="result-checkboxes" id="pw-result-checkboxes"></div>
+          <div class="form-group">
+            <label>文献综述文件（可选）</label>
+            <input type="text" id="pw-literature" placeholder="./user_output/literature_review.md">
+          </div>
+          <button class="btn-secondary" onclick="wizardPrev(5)">← 上一步</button>
+          <button class="btn-primary" onclick="wizardNext(5)">下一步 →</button>
+        </div>
+
+        <!-- Step 6: Generate -->
+        <div class="wizard-panel" data-panel="6">
+          <h3>🚀 生成论文</h3>
+          <div class="form-group">
+            <label>模板</label>
+            <div class="radio-group">
+              <label class="radio-label"><input type="radio" name="pw-template" value="ieee_dual_column" checked> IEEE 双栏</label>
+              <label class="radio-label"><input type="radio" name="pw-template" value="single_column"> 单栏</label>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>期刊风格</label>
+            <select id="pw-journal">
+              <option value="is">信息系统顶刊 (MISQ / ISR / JAIS)</option>
+              <option value="general">通用学术</option>
+            </select>
+          </div>
+          <button class="btn-secondary" onclick="wizardPrev(6)">← 上一步</button>
+          <button class="btn-primary" onclick="generatePaper()">📝 生成论文</button>
+        </div>
+
+        <!-- Paper Preview -->
+        <div class="paper-preview" id="paper-preview" style="display:none">
+          <div class="preview-header">
+            <h3>📄 论文预览</h3>
+            <div class="preview-actions">
+              <button class="btn-sm" onclick="copyPaper()">📋 复制</button>
+              <button class="btn-sm" onclick="downloadPaper()">💾 下载</button>
+            </div>
+          </div>
+          <div class="preview-content" id="paper-preview-content"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════ SKILLS ══════ -->
+    <div class="page" id="page-skills">
+      <div class="page-header">
+        <h1>🧠 技能库</h1>
+        <p class="page-desc">18 个计量分析技能 · OpenClaw AgentSkills</p>
+      </div>
+      <div class="skills-grid" id="skills-grid"></div>
+    </div>
+
+  </main><!-- end content -->
+</div><!-- end main-wrapper -->
+
+<!-- ═══════════════════════════════════════ STATUS BAR ══════════════════════════════════ -->
+<footer class="statusbar">
+  <span id="sb-status">就绪</span>
+  <span id="sb-data">数据: —</span>
+  <span id="sb-results">结果: 0 个文件</span>
+  <span id="sb-time"></span>
+</footer>
+
+<!-- ═══════════════════════════════════════ TOAST ═══════════════════════════════════════ -->
+<div class="toast-container" id="toast-container"></div>
+
+<!-- ═══════════════════════════════════════ MODALS ═══════════════════════════════════════ -->
+<div class="modal-overlay" id="modal-overlay" onclick="closeModal()"></div>
+<div class="modal" id="settings-modal">
+  <div class="modal-header">
+    <h3>⚙️ 设置</h3>
+    <button class="btn-icon" onclick="closeModal()">✕</button>
+  </div>
+  <div class="modal-body">
+    <div class="form-group">
+      <label>OpenAI API Key</label>
+      <input type="password" id="setting-api-key" placeholder="sk-...">
+    </div>
+    <div class="form-group">
+      <label>模型</label>
+      <select id="setting-model">
+        <option value="gpt-4o">GPT-4o</option>
+        <option value="gpt-4o-mini">GPT-4o Mini</option>
+        <option value="gpt-4-turbo">GPT-4 Turbo</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>自定义 API 地址（可选）</label>
+      <input type="text" id="setting-base-url" placeholder="https://api.openai.com/v1">
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn-secondary" onclick="closeModal()">取消</button>
+    <button class="btn-primary" onclick="saveSettings()">保存</button>
+  </div>
+</div>
+
+<script src="/static/js/app.js"></script>
+</body>
+</html>

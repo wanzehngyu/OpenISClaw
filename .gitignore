@@ -14,4 +14,4 @@ dist/*.skill
 # Docker 运行时目录
 user_workspace/
 user_data/
-user_output/
+user_output/IEEE_Transactions_Template/
