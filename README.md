@@ -13,22 +13,24 @@
 
 ## 🗞️ 最新更新（Changelog）
 
+### v0.2.3 — 2026-06-28
+
+**本地 Web 工作台（TensorBoard 风格）上线**
+
+- 全新浏览器界面，支持面板回归、IV、DID、断点回归、PSM、生存分析六大技能的可视化操作
+- 结果直接在浏览器中展示，无需切换终端
+- **路径完全隔离**：数据/输出写入用户项目目录（`cwd/user_data`、`cwd/user_output`），skills 目录保持纯净
+- `server.py` 新增 cwd 自动检测逻辑，支持从任意项目目录启动
+- 修复 linearmodels 7.0 API 兼容性问题（`summary.to_string()` → `summary.tables[1].to_string()`）
+- 修复时间维度被错误转为 Categorical 导致的面板回归报错
+
 ### v0.2.2 — 2026-06-26
 
-**paper-writer 重大升级 + Docker 三模式运行全面支持**
+**paper-writer 分章节生成 + Docker 三模式运行**
 
-**paper-writer 技能升级（分章节生成 + 多模板）：**
-- 全新"分章节生成 → 编译检查 → 整合输出"工作流，每节生成后立即检查，避免最后才发现问题
-- 固定 6 节结构：Introduction → Theoretical Foundations（理论深度阐述）→ Hypotheses Development（每假设含理论推导）→ Methodology → Empirical Results → Discussion（含 Conclusion 子节）
-- **假设必须有理论依据**（含内容+理论推导+变量），**所有引用必须在正文中 `\cite{}`**，写作规范内置于 skill
-- 多模板架构：内置 `ieee_dual_column`（IEEEtran 双栏）模板；新增 `latex_writer.py`（分章节生成）、`latex_compiler.py`（编译检查）
-
-**Docker 三模式运行（无需本地 OpenClaw）：**
-- `skills/agent-loop/`：对话式 Agent Loop（`docker-entrypoint.py`），自然语言 → 自动执行分析
-- API Server（`api-server.py`）：REST API，支持 `POST /analyze` 任务提交
-- `skills_registry.py`：统一注册表，供 LLM 智能调用 17 个技能
-- 路径自适应：自动检测 Docker / 本地原生环境
-- 快捷命令：`make chat`（对话）/ `make api-run`（API服务）/ `make api`（单次调用）
+- paper-writer 升级为"分章节生成 → 编译检查 → 整合输出"工作流，支持 IEEEtran 双栏模板
+- Docker 三模式运行（纯脚本 / Agent Loop 对话 / HTTP API Server），无需本地 OpenClaw
+- 新增 `skills_registry.py` 统一注册表，供 LLM 智能调用 17 个技能
 
 ---
 
