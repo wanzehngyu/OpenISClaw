@@ -181,7 +181,7 @@ def run_iv_regression(args):
     print(f"\n{'='*60}")
     print("### [IV回归结果]")
     print(f"{'='*60}\n")
-    print(results.summary.to_string())
+    print(results.summary.as_text())
 
     return {
         "n_obs": n_obs,

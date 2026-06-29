@@ -549,10 +549,11 @@ function loadIVColumns() {
     const allCols = data.columns.map(c => c.name);
     const numericCols = data.columns.filter(c => c.type === 'numeric').map(c => c.name);
 
-    const endogSel = document.getElementById('iv-endog');
-    if (endogSel) {
-      endogSel.innerHTML = '<option value="">— 选择内生变量 —</option>' +
-        numericCols.map(c => `<option value="${c}">${c}</option>`).join('');
+    const endogList = document.getElementById('iv-endog-list');
+    if (endogList) {
+      endogList.innerHTML = numericCols.map(c => `
+        <label class="checkbox-label"><input type="checkbox" value="${c}"> ${c}</label>
+      `).join('');
     }
 
     const ivList = document.getElementById('iv-iv-list');
@@ -567,25 +568,24 @@ function loadIVColumns() {
 function runIV() {
   const data = document.getElementById('iv-data').value;
   const y = document.getElementById('iv-y').value;
-  const endog = document.getElementById('iv-endog').value;
+  const endogCheckboxes = document.querySelectorAll('#iv-endog-list input:checked');
+  const endog = Array.from(endogCheckboxes).map(el => el.value);
   const ivCheckboxes = document.querySelectorAll('#iv-iv-list input:checked');
   const instruments = Array.from(ivCheckboxes).map(el => el.value);
   const exogCheckboxes = document.querySelectorAll('#iv-exog-list input:checked');
   const exog = Array.from(exogCheckboxes).map(el => el.value);
 
-  if (!data || !y || !endog || !instruments.length) {
+  if (!data || !y || !endog.length || !instruments.length) {
     toast('请填写：数据集、因变量、内生变量、工具变量', 'error');
     return;
   }
 
-  const args = [
-    '--data', `./user_data/${data}`,
-    '--y', y,
-    '--endog', endog,
-    '--iv', instruments.join(' '),
-    '--output_pickle', './user_output/iv_results.pkl',
-  ];
-  if (exog.length) args.push('--exog', exog.join(' '));
+  // Build args: each multi-select value as separate arg (nargs='+'/'*' expects separate argv elements)
+  const args = ['--data', `./user_data/${data}`, '--y', y];
+  endog.forEach(v => { args.push('--endog', v); });
+  instruments.forEach(v => { args.push('--iv', v); });
+  args.push('--output_pickle', './user_output/iv_results.pkl');
+  exog.forEach(v => { args.push('--exog', v); });
 
   executeSkill('iv-estimator', args, 'iv-result', '🎯 IV 估计');
 }
@@ -806,12 +806,17 @@ async function executeSkill(skill, args, resultElId, label) {
   const el = document.getElementById(resultElId);
   if (!el) { alert(`错误: 找不到元素 #${resultElId}`); return; }
 
-  // Loading state
+  // Build command preview (script name unknown client-side, server returns real cmd on error)
+  const cmdPreview = `python3 <script> ${args.join(' ')}`;
   el.innerHTML = `<div style="text-align:center;padding:40px;background:#1e293b;border-radius:8px">
     <div style="font-size:2rem;margin-bottom:10px">⏳</div>
     <div style="color:#94a3b8">正在运行 ${label}...</div>
-    <div style="font-family:monospace;font-size:0.75rem;color:#64748b;margin-top:8px;background:#0f172a;padding:8px;border-radius:4px;text-align:left;max-height:80px;overflow:auto;word-break:break-all">
-    python3 skills/${skill}/scripts/...py ${args.join(' ')}
+    <div style="margin-top:8px;font-size:0.8rem;color:#64748b;padding:8px;background:#0f172a;border-radius:4px;word-break:break-all">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+        <span style="color:#94a3b8">Command:</span>
+        <button class="btn-sm" onclick="const t=document.getElementById('loading-cmd-pre');const s=window.getSelection();const r=document.createRange();r.selectNodeContents(t);s.removeAllRanges();s.addRange(r);document.execCommand('copy');this.textContent='✅';setTimeout(()=>this.textContent='📋 复制',1500)" style="padding:2px 8px;font-size:0.7rem">📋 复制</button>
+      </div>
+      <pre id="loading-cmd-pre" style="margin:0;white-space:pre-wrap;word-break:break-all">${escapeHtml(cmdPreview)}</pre>
     </div></div>`;
 
   try {
@@ -831,9 +836,14 @@ async function executeSkill(skill, args, resultElId, label) {
       STATE.executionLogs.push({ time: new Date().toISOString(), skill, args, ...resp });
       await loadResults();
     } else {
+      const fullCmd = resp.command || `python3 skills/${skill}/scripts/...py ${args.join(' ')}`;
       el.innerHTML = `<div class="exec-output error" style="max-height:400px;overflow:auto">${escapeHtml((resp.stderr || resp.stdout || '').slice(-2000))}</div>
         <div style="margin-top:8px;font-size:0.8rem;color:#64748b;padding:8px;background:#0f172a;border-radius:4px;word-break:break-all">
-          Command: ${escapeHtml((resp.command || '').slice(0, 200))}
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+            <span style="color:#94a3b8">Command:</span>
+            <button class="btn-sm" onclick="const t=document.getElementById('err-cmd-pre');const s=window.getSelection();const r=document.createRange();r.selectNodeContents(t);s.removeAllRanges();s.addRange(r);document.execCommand('copy');this.textContent='✅';setTimeout(()=>this.textContent='📋 复制',1500)" style="padding:2px 8px;font-size:0.7rem">📋 复制</button>
+          </div>
+          <pre id="err-cmd-pre" style="margin:0;white-space:pre-wrap;word-break:break-all;font-size:0.75rem">${escapeHtml(fullCmd)}</pre>
         </div>`;
       toast(`${label} 执行失败`, 'error');
     }
